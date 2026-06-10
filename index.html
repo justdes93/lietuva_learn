@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🇱🇹 Lietuvių · Тренажер A2 · ПМП</title>
+<meta name="description" content="Тренажер литовської мови (A2 / ПМП): лексика, відмінки, переклад, граматика.">
+<style>
+  :root{
+    --bg:#F4F6F3; --card:#FFFFFF; --ink:#1A211C; --muted:#6A7269;
+    --line:#E2E7DE; --accent:#1F7A5A; --accent2:#176B6B; --soft:#E6F1EC;
+    --ok:#15803D; --bad:#C0392B; --warn:#B45309; --gold:#C99A2E;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.45;padding:0}
+  .wrap{max-width:680px;margin:0 auto;padding:16px 14px 80px}
+  header h1{font-size:20px;margin:0;letter-spacing:-.01em}
+  header p{font-size:12px;color:var(--muted);margin:2px 0 0}
+  .bar{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0}
+  .pill{background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:8px 11px;font-size:12px;text-align:center;flex:1;min-width:60px}
+  .pill b{display:block;font-size:17px;color:var(--accent)}
+  h2{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;
+    margin:20px 0 9px;font-weight:700}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:14px 12px;cursor:pointer;transition:.12s;text-align:left}
+  .tile:active{transform:scale(.98)}
+  .tile.sel{border-color:var(--accent);background:var(--soft)}
+  .tile .ic{font-size:20px}
+  .tile .t{font-weight:650;font-size:14px;margin-top:5px}
+  .tile .d{font-size:11px;color:var(--muted);margin-top:2px}
+  .mode{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:13px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-bottom:9px}
+  .mode:active{transform:scale(.99)}
+  .mode .ic{font-size:22px;width:30px;text-align:center}
+  .mode .t{font-weight:650;font-size:14.5px}
+  .mode .d{font-size:11.5px;color:var(--muted)}
+  .go{width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;
+    padding:15px;font-size:15px;font-weight:700;cursor:pointer;margin-top:8px}
+  .go:disabled{background:#B7C3BC}
+  .ghost{background:var(--card);color:var(--ink);border:1px solid var(--line)}
+  /* practice */
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 16px;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);min-height:120px}
+  .prompt{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .big{font-size:24px;font-weight:700;letter-spacing:-.01em}
+  .hintword{font-size:13px;color:var(--accent);margin-top:6px}
+  input.ans{width:100%;padding:13px;border:1.5px solid var(--line);border-radius:11px;
+    font-size:17px;margin-top:14px;background:var(--bg);font-family:inherit}
+  input.ans:focus{outline:none;border-color:var(--accent)}
+  .opt{display:block;width:100%;text-align:left;background:var(--bg);border:1.5px solid var(--line);
+    border-radius:11px;padding:13px;font-size:16px;margin-top:9px;cursor:pointer;font-family:inherit}
+  .opt:active{transform:scale(.99)}
+  .opt.ok{border-color:var(--ok);background:#eaf7ee}
+  .opt.bad{border-color:var(--bad);background:#fbecea}
+  .fb{margin-top:14px;padding:11px 13px;border-radius:11px;font-size:14px;display:none}
+  .fb.ok{background:#eaf7ee;color:var(--ok);display:block}
+  .fb.bad{background:#fbecea;color:var(--bad);display:block}
+  .fb b{color:var(--ink)}
+  .reveal{font-size:13px;margin-top:6px}
+  .pbtns{display:flex;gap:9px;margin-top:14px}
+  .pbtns button{flex:1;padding:13px;border-radius:11px;border:none;font:inherit;font-weight:650;cursor:pointer}
+  .progress{height:5px;background:var(--line);border-radius:3px;margin:14px 0 4px;overflow:hidden}
+  .progress i{display:block;height:100%;background:var(--accent);width:0;transition:.3s}
+  .match{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .mItem{background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:12px 9px;
+    font-size:14px;text-align:center;cursor:pointer}
+  .mItem.sel{border-color:var(--accent);background:var(--soft)}
+  .mItem.done{opacity:.35;pointer-events:none;border-style:dashed}
+  .mItem.bad{border-color:var(--bad);background:#fbecea}
+  .flip{perspective:1000px;cursor:pointer}
+  .flip .inner{position:relative;text-align:center;padding:34px 16px;border-radius:16px;
+    background:var(--card);border:1px solid var(--line);min-height:90px;display:flex;
+    align-items:center;justify-content:center;font-size:24px;font-weight:700}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .topbar button{background:none;border:none;color:var(--accent);font-size:14px;cursor:pointer;font-weight:600;padding:6px}
+  .grm{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+  .grm h3{margin:0 0 8px;font-size:15px;color:var(--accent2)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:6px 5px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-size:11px;text-transform:uppercase}
+  code{background:var(--soft);padding:1px 5px;border-radius:5px;font-size:13px}
+  .hide{display:none}
+  .small{font-size:11.5px;color:var(--muted);margin-top:10px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- HOME -->
+  <div id="home">
+    <header><h1>🇱🇹 Lietuvių · Тренажер A2 · ПМП</h1><p>Лексика · відмінки · переклад · граматика. Прогрес зберігається.</p></header>
+    <div class="bar" id="stats"></div>
+
+    <h2>1 · Обери тему</h2>
+    <div class="grid" id="themes"></div>
+
+    <h2>2 · Обери режим</h2>
+    <div id="modes"></div>
+
+    <button class="go" id="start" disabled onclick="start()">Почати тренування</button>
+    <button class="go ghost" onclick="show('grammar')">📖 Граматичний довідник</button>
+    <p class="small">Порада: режими «Переклад» і «Пропуски» найкорисніші для відмінків. Слова, де помиляєшся, повертаються частіше.</p>
+  </div>
+
+  <!-- PRACTICE -->
+  <div id="practice" class="hide">
+    <div class="topbar">
+      <button onclick="show('home')">‹ Меню</button>
+      <span id="pcounter" class="small"></span>
+      <button onclick="restart()">↻</button>
+    </div>
+    <div class="progress"><i id="pbar"></i></div>
+    <div id="pbody"></div>
+  </div>
+
+  <!-- GRAMMAR -->
+  <div id="grammar" class="hide">
+    <div class="topbar"><button onclick="show('home')">‹ Меню</button><span class="small">Довідник</span><span></span></div>
+    <div id="gbody"></div>
+  </div>
+</div>
+
+<script>
+/* ============ ДАНІ ============ */
+const THEMES = {
+  bazes:{ic:"💬",name:"Базові фрази",desc:"pagrindai",
+    words:[
+      ["labas","привіт"],["laba diena","добрий день"],["labas rytas","доброго ранку"],["labas vakaras","добрий вечір"],
+      ["ačiū","дякую"],["prašau","будь ласка"],["atsiprašau","вибачте"],["taip","так"],["ne","ні"],
+      ["viso gero","до побачення"],["iki","бувай"],["kaip sekasi?","як справи?"],["gerai","добре"],
+      ["blogai","погано"],["malonu susipažinti","приємно познайомитись"],["aš nesuprantu","я не розумію"],
+      ["pakartokite, prašau","повторіть, будь ласка"],["kalbėkite lėčiau","говоріть повільніше"],
+      ["kaip jūsų vardas?","як вас звати?"],["mano vardas...","мене звати..."]
+    ],
+    sent:[
+      ["Labas, malonu susipažinti.","Привіт, приємно познайомитись."],
+      ["Atsiprašau, aš nesuprantu.","Вибачте, я не розумію."],
+      ["Kalbėkite lėčiau, prašau.","Говоріть повільніше, будь ласка."],
+      ["Ačiū, viso gero!","Дякую, до побачення!"],
+      ["Kaip jūsų vardas?","Як вас звати?"]
+    ],
+    blanks:[
+      ["___, aš nesuprantu.","Atsiprašau","atsiprašau","ввічлива фраза"],
+      ["Kaip ___ sekasi?","jums","jūs","Naudininkas — kaip jums sekasi"]
+    ]},
+  asmuo:{ic:"🧍",name:"Про себе",desc:"apie save",
+    words:[
+      ["vardas","ім'я"],["pavardė","прізвище"],["amžius","вік"],["šalis","країна"],["miestas","місто"],
+      ["gyventi","жити"],["gimti","народитися"],["kalbėti","говорити"],["kalba","мова"],["tautybė","національність"],
+      ["ukrainietis","українець"],["ukrainietė","українка"],["vyras","чоловік"],["moteris","жінка"],
+      ["studentas","студент"],["vardas ir pavardė","ім'я і прізвище"],["telefonas","телефон"],
+      ["el. paštas","електронна пошта"],["adresas","адреса"],["pažintis","знайомство"]
+    ],
+    sent:[
+      ["Aš gyvenu Vilniuje.","Я живу у Вільнюсі."],
+      ["Aš esu iš Ukrainos.","Я з України."],
+      ["Aš kalbu ukrainietiškai ir truputį lietuviškai.","Я говорю українською і трохи литовською."],
+      ["Mano vardas Denys, pavardė Čupryn.","Мене звати Денис, прізвище Чуприн."],
+      ["Aš mokausi lietuvių kalbos.","Я вивчаю литовську мову."]
+    ],
+    blanks:[
+      ["Aš gyvenu ___.","Vilniuje","Vilnius","Vietininkas (де?)"],
+      ["Aš esu iš ___.","Ukrainos","Ukraina","iš + Kilmininkas (звідки?)"],
+      ["Aš mokausi lietuvių ___.","kalbos","kalba","mokytis + Kilmininkas"]
+    ]},
+  seima:{ic:"👨‍👩‍👧",name:"Сім'я",desc:"šeima",
+    words:[
+      ["šeima","сім'я"],["žmona","дружина"],["vyras","чоловік (одружений)"],["vaikas","дитина"],["vaikai","діти"],
+      ["sūnus","син"],["duktė","дочка"],["dukra","дочка (розм.)"],["mama","мама"],["tėtis","тато"],
+      ["tėvai","батьки"],["brolis","брат"],["sesuo","сестра"],["senelis","дідусь"],["senelė","бабуся"],
+      ["draugas","друг"],["draugė","подруга, дівчина"],["vyresnis","старший"],["jaunesnis","молодший"],["mylėti","любити"]
+    ],
+    sent:[
+      ["Aš turiu šeimą.","У мене є сім'я."],
+      ["Tai mano žmona.","Це моя дружина."],
+      ["Mano brolis gyvena Ukrainoje.","Мій брат живе в Україні."],
+      ["Aš myliu savo šeimą.","Я люблю свою сім'ю."],
+      ["Mes turime du vaikus.","У нас двоє дітей."]
+    ],
+    blanks:[
+      ["Aš turiu ___.","šeimą","šeima","turėti + Galininkas (Acc)"],
+      ["Aš myliu savo ___.","šeimą","šeima","mylėti + Galininkas (Acc)"],
+      ["Tai mano ___.","žmona","žmona","Vardininkas (це хто)"]
+    ]},
+  darbas:{ic:"💼",name:"Робота",desc:"darbas",
+    words:[
+      ["darbas","робота"],["dirbti","працювати"],["darbuotojas","працівник"],["darbdavys","роботодавець"],
+      ["atlyginimas","зарплата"],["patirtis","досвід"],["įmonė","компанія"],["biuras","офіс"],
+      ["pokalbis","розмова, співбесіда"],["kolega","колега"],["užduotis","завдання"],["projektas","проєкт"],
+      ["įgūdžiai","навички"],["kokybė","якість"],["pareigos","посада"],["susitikimas","зустріч"],
+      ["profesija","професія"],["gydytojas","лікар"],["mokytojas","вчитель"],["vairuotojas","водій"],
+      ["inžinierius","інженер"],["programuotojas","програміст"],["ieškoti","шукати"],["uždirbti","заробляти"]
+    ],
+    sent:[
+      ["Aš ieškau darbo.","Я шукаю роботу."],
+      ["Aš dirbu kaip testuotojas.","Я працюю тестувальником."],
+      ["Aš turiu patirties.","Я маю досвід."],
+      ["Rytoj turiu darbo pokalbį.","Завтра маю співбесіду."],
+      ["Noriu dirbti jūsų įmonėje.","Хочу працювати у вашій компанії."]
+    ],
+    blanks:[
+      ["Aš ieškau ___.","darbo","darbas","ieškoti + Kilmininkas (Gen)"],
+      ["Aš dirbu ___.","įmonėje","įmonė","dirbti + Vietininkas (де?)"],
+      ["Man reikia ___.","darbo","darbas","reikia + Kilmininkas (Gen)"],
+      ["Aš dirbu ___.","Vilniuje","Vilnius","Vietininkas (де?)"],
+      ["Turiu daug ___.","patirties","patirtis","daug + Kilmininkas (Gen)"]
+    ]},
+  namai:{ic:"🏠",name:"Дім / житло",desc:"namai",
+    words:[
+      ["namas","дім, будинок"],["butas","квартира"],["kambarys","кімната"],["virtuvė","кухня"],
+      ["vonia","ванна"],["miegamasis","спальня"],["svetainė","вітальня"],["durys","двері"],["langas","вікно"],
+      ["stalas","стіл"],["kėdė","стілець"],["lova","ліжко"],["spinta","шафа"],["grindys","підлога"],
+      ["nuomotis","орендувати"],["gyventi","жити"],["raktas","ключ"],["kaimynas","сусід"],["aukštas","поверх"],["sodas","сад"]
+    ],
+    sent:[
+      ["Aš gyvenu bute.","Я живу у квартирі."],
+      ["Mano bute yra du kambariai.","У моїй квартирі дві кімнати."],
+      ["Aš nuomojuosi butą Vilniuje.","Я орендую квартиру у Вільнюсі."],
+      ["Virtuvėje yra stalas.","На кухні є стіл."]
+    ],
+    blanks:[
+      ["Aš gyvenu ___.","bute","butas","Vietininkas (де?)"],
+      ["Stalas yra ___.","virtuvėje","virtuvė","Vietininkas (де?)"],
+      ["Aš nuomojuosi ___.","butą","butas","Galininkas (Acc)"]
+    ]},
+  maistas:{ic:"🍽️",name:"Їжа / ресторан",desc:"maistas",
+    words:[
+      ["maistas","їжа"],["duona","хліб"],["pienas","молоко"],["vanduo","вода"],["kava","кава"],["arbata","чай"],
+      ["sūris","сир"],["mėsa","м'ясо"],["žuvis","риба"],["kiaušinis","яйце"],["sriuba","суп"],["bulvės","картопля"],
+      ["vaisiai","фрукти"],["daržovės","овочі"],["obuolys","яблуко"],["cukrus","цукор"],["druska","сіль"],
+      ["valgyti","їсти"],["gerti","пити"],["pusryčiai","сніданок"],["pietūs","обід"],["vakarienė","вечеря"],
+      ["restoranas","ресторан"],["skanus","смачний"]
+    ],
+    sent:[
+      ["Aš valgau pusryčius.","Я їм сніданок."],
+      ["Noriu kavos.","Хочу кави."],
+      ["Tai labai skanu.","Це дуже смачно."],
+      ["Aš geriu arbatą.","Я п'ю чай."],
+      ["Restorane užsisakau sriubą.","У ресторані замовляю суп."]
+    ],
+    blanks:[
+      ["Noriu ___.","kavos","kava","norėti + Kilmininkas (Gen)"],
+      ["Aš geriu ___.","arbatą","arbata","Galininkas (Acc — що п'ю)"],
+      ["Aš valgau ___.","pusryčius","pusryčiai","Galininkas (Acc)"]
+    ]},
+  pirkiniai:{ic:"🛒",name:"Покупки",desc:"pirkiniai",
+    words:[
+      ["parduotuvė","магазин"],["pirkti","купувати"],["pinigai","гроші"],["kaina","ціна"],["brangus","дорогий"],
+      ["pigus","дешевий"],["nuolaida","знижка"],["mokėti","платити"],["kasa","каса"],["kortelė","картка"],
+      ["grynieji","готівка"],["kvitas","чек"],["krepšys","сумка, кошик"],["turgus","ринок"],["kiek?","скільки?"],
+      ["centas","цент"],["euras","євро"],["didelis","великий"],["mažas","малий"],["naujas","новий"]
+    ],
+    sent:[
+      ["Kiek tai kainuoja?","Скільки це коштує?"],
+      ["Aš perku duoną.","Я купую хліб."],
+      ["Tai per brangu.","Це задорого."],
+      ["Ar galima mokėti kortele?","Чи можна платити карткою?"],
+      ["Aš einu į parduotuvę.","Я йду в магазин."]
+    ],
+    blanks:[
+      ["Aš perku ___.","duoną","duona","Galininkas (Acc — що купую)"],
+      ["Aš einu į ___.","parduotuvę","parduotuvė","į + Galininkas (куди?)"],
+      ["Ar galima mokėti ___?","kortele","kortelė","Įnagininkas (чим?)"]
+    ]},
+  drabuziai:{ic:"👕",name:"Одяг / кольори",desc:"drabužiai",
+    words:[
+      ["drabužiai","одяг"],["marškiniai","сорочка"],["kelnės","штани"],["suknelė","сукня"],["sijonas","спідниця"],
+      ["striukė","куртка"],["batai","взуття, черевики"],["kepurė","шапка"],["pirštinės","рукавиці"],["megztinis","светр"],
+      ["balta","білий"],["juoda","чорний"],["raudona","червоний"],["mėlyna","синій"],["žalia","зелений"],
+      ["geltona","жовтий"],["pilka","сірий"],["rudas","коричневий"],["dėvėti","носити (одяг)"],["matuotis","міряти"]
+    ],
+    sent:[
+      ["Aš dėviu mėlynus marškinius.","Я ношу синю сорочку."],
+      ["Šie batai per maži.","Це взуття замале."],
+      ["Man patinka ši striukė.","Мені подобається ця куртка."],
+      ["Lauke šalta, reikia kepurės.","На вулиці холодно, потрібна шапка."]
+    ],
+    blanks:[
+      ["Man patinka ši ___.","striukė","striukė","Vardininkas (це що)"],
+      ["Reikia ___.","kepurės","kepurė","reikia + Kilmininkas (Gen)"]
+    ]},
+  miestas:{ic:"🏙️",name:"Місто / напрямки",desc:"miestas",
+    words:[
+      ["miestas","місто"],["gatvė","вулиця"],["aikštė","площа"],["kelias","дорога"],["tiltas","міст"],
+      ["bažnyčia","церква"],["mokykla","школа"],["ligoninė","лікарня"],["vaistinė","аптека"],["paštas","пошта"],
+      ["bankas","банк"],["kavinė","кафе"],["dešinėn","праворуч"],["kairėn","ліворуч"],["tiesiai","прямо"],
+      ["arti","близько"],["toli","далеко"],["centras","центр"],["kampas","ріг"],["kur?","де?"]
+    ],
+    sent:[
+      ["Kur yra vaistinė?","Де аптека?"],
+      ["Eikite tiesiai, paskui dešinėn.","Йдіть прямо, потім праворуч."],
+      ["Bankas yra netoli.","Банк недалеко."],
+      ["Aš einu į centrą.","Я йду в центр."]
+    ],
+    blanks:[
+      ["Aš einu į ___.","centrą","centras","į + Galininkas (куди?)"],
+      ["Kur yra ___?","vaistinė","vaistinė","Vardininkas (де є що)"]
+    ]},
+  transportas:{ic:"🚌",name:"Транспорт / подорож",desc:"transportas",
+    words:[
+      ["transportas","транспорт"],["autobusas","автобус"],["troleibusas","тролейбус"],["traukinys","потяг"],
+      ["lėktuvas","літак"],["automobilis","автомобіль"],["dviratis","велосипед"],["taksi","таксі"],["stotelė","зупинка"],
+      ["stotis","вокзал, станція"],["bilietas","квиток"],["kelionė","подорож"],["važiuoti","їхати"],["skristi","летіти"],
+      ["eiti","йти"],["greitai","швидко"],["vėluoti","спізнюватися"],["atvykti","прибувати"],["išvykti","відбувати"],["oro uostas","аеропорт"]
+    ],
+    sent:[
+      ["Aš važiuoju autobusu.","Я їду автобусом."],
+      ["Traukinys vėluoja.","Потяг спізнюється."],
+      ["Kur yra stotelė?","Де зупинка?"],
+      ["Aš skrendu į Kyjivą.","Я лечу до Києва."]
+    ],
+    blanks:[
+      ["Aš važiuoju ___.","autobusu","autobusas","Įnagininkas (чим їду?)"],
+      ["Aš einu į ___.","stotį","stotis","į + Galininkas (куди?)"]
+    ]},
+  sveikata:{ic:"💊",name:"Здоров'я / тіло",desc:"sveikata",
+    words:[
+      ["sveikata","здоров'я"],["galva","голова"],["akys","очі"],["ausys","вуха"],["nosis","ніс"],["burna","рот"],
+      ["dantys","зуби"],["ranka","рука"],["koja","нога"],["pilvas","живіт"],["širdis","серце"],["gydytojas","лікар"],
+      ["vaistai","ліки"],["liga","хвороба"],["sergu","я хворію"],["skauda","болить"],["temperatūra","температура"],
+      ["sveikas","здоровий"],["sirgti","хворіти"],["gydytis","лікуватися"]
+    ],
+    sent:[
+      ["Man skauda galvą.","У мене болить голова."],
+      ["Aš sergu.","Я хворію."],
+      ["Reikia eiti pas gydytoją.","Треба йти до лікаря."],
+      ["Aš geriu vaistus.","Я п'ю ліки."]
+    ],
+    blanks:[
+      ["Man skauda ___.","galvą","galva","skauda + Galininkas (Acc)"],
+      ["Reikia eiti pas ___.","gydytoją","gydytojas","pas + Galininkas (до кого)"]
+    ]},
+  laikas:{ic:"🕐",name:"Час, дні, числа",desc:"laikas",
+    words:[
+      ["diena","день"],["savaitė","тиждень"],["mėnuo","місяць"],["metai","рік"],["valanda","година"],["minutė","хвилина"],
+      ["šiandien","сьогодні"],["rytoj","завтра"],["vakar","вчора"],["dabar","зараз"],["rytas","ранок"],["vakaras","вечір"],
+      ["pirmadienis","понеділок"],["antradienis","вівторок"],["trečiadienis","середа"],["ketvirtadienis","четвер"],
+      ["penktadienis","п'ятниця"],["šeštadienis","субота"],["sekmadienis","неділя"],
+      ["vienas","один"],["du","два"],["trys","три"],["keturi","чотири"],["penki","п'ять"],
+      ["šeši","шість"],["septyni","сім"],["aštuoni","вісім"],["devyni","дев'ять"],["dešimt","десять"]
+    ],
+    sent:[
+      ["Šiandien pirmadienis.","Сьогодні понеділок."],
+      ["Rytoj turiu susitikimą.","Завтра маю зустріч."],
+      ["Vakar buvau biure.","Вчора був в офісі."],
+      ["Kiek dabar valandų?","Котра зараз година?"]
+    ],
+    blanks:[
+      ["___ dirbu namie.","Šiandien","šiandien","прислівник часу"],
+      ["___ buvau biure.","Vakar","vakar","минулий час → vakar"]
+    ]},
+  laisvalaikis:{ic:"⚽",name:"Дозвілля / хобі",desc:"laisvalaikis",
+    words:[
+      ["laisvalaikis","дозвілля"],["sportas","спорт"],["futbolas","футбол"],["bėgioti","бігати"],["plaukti","плавати"],
+      ["knyga","книга"],["skaityti","читати"],["muzika","музика"],["filmas","фільм"],["žiūrėti","дивитися"],
+      ["žaisti","грати"],["keliauti","подорожувати"],["fotografuoti","фотографувати"],["ilsėtis","відпочивати"],
+      ["mėgti","любити (щось робити)"],["patikti","подобатися"],["hobis","хобі"],["draugai","друзі"],["pasivaikščioti","прогулятися"],["treniruotė","тренування"]
+    ],
+    sent:[
+      ["Man patinka futbolas.","Мені подобається футбол."],
+      ["Aš mėgstu skaityti knygas.","Я люблю читати книги."],
+      ["Savaitgalį einu į treniruotę.","На вихідних іду на тренування."],
+      ["Vakare žiūriu filmą.","Увечері дивлюся фільм."]
+    ],
+    blanks:[
+      ["Man patinka ___.","futbolas","futbolas","patikti + Vardininkas (що подобається)"],
+      ["Aš mėgstu skaityti ___.","knygas","knygos","Galininkas (Acc, множина)"]
+    ]},
+  dokumentai:{ic:"📄",name:"Документи / установи",desc:"dokumentai",
+    words:[
+      ["dokumentas","документ"],["pasas","паспорт"],["leidimas gyventi","дозвіл на проживання"],
+      ["pažyma","довідка"],["prašymas","заява"],["sąskaita","рахунок"],["bankas","банк"],["parašas","підпис"],
+      ["anketa","анкета"],["gimimo data","дата народження"],["pavardė","прізвище"],["registracija","реєстрація"],
+      ["užpildyti","заповнити"],["pasirašyti","підписати"],["pateikti","подати"],["įstaiga","установа"],
+      ["savivaldybė","муніципалітет"],["migracija","міграція"],["draudimas","страхування"],["mokestis","податок, платіж"]
+    ],
+    sent:[
+      ["Man reikia dokumento.","Мені потрібен документ."],
+      ["Noriu atidaryti sąskaitą.","Хочу відкрити рахунок."],
+      ["Reikia užpildyti anketą.","Треба заповнити анкету."],
+      ["Man reikia leidimo gyventi.","Мені потрібен дозвіл на проживання."]
+    ],
+    blanks:[
+      ["Man reikia ___.","paso","pasas","reikia + Kilmininkas (Gen)"],
+      ["Noriu atidaryti ___.","sąskaitą","sąskaita","Galininkas (Acc)"],
+      ["Reikia užpildyti ___.","anketą","anketa","Galininkas (Acc)"]
+    ]},
+  istaigos:{ic:"🏛️",name:"Установи / послуги",desc:"įstaigos (ПМП)",
+    words:[
+      ["įstaiga","установа"],["migracija","міграція"],["savivaldybė","муніципалітет"],["Sodra","Содра (соц. страхування)"],
+      ["valdininkas","чиновник"],["eilė","черга"],["talonas","талон"],["langelis","віконце (прийому)"],
+      ["registruotis","реєструватися"],["užsiregistruoti","зареєструватися"],["pateikti","подати"],
+      ["gauti","отримати"],["laukti","чекати"],["pildyti","заповнювати"],["pareiškimas","звернення, заява"],
+      ["pažymėjimas","посвідчення"],["mokestis","платіж, податок"],["terminas","термін"],["galioti","діяти (бути чинним)"],["pratęsti","продовжити (термін)"]
+    ],
+    sent:[
+      ["Aš noriu užsiregistruoti savivaldybėje.","Я хочу зареєструватися в муніципалітеті."],
+      ["Reikia paimti taloną ir laukti eilėje.","Треба взяти талон і чекати в черзі."],
+      ["Mano leidimas gyventi greitai baigsis.","Мій дозвіл на проживання скоро закінчиться."],
+      ["Noriu pratęsti leidimą.","Хочу продовжити дозвіл."],
+      ["Ar šis dokumentas dar galioja?","Чи цей документ ще чинний?"]
+    ],
+    blanks:[
+      ["Aš registruojuosi ___.","savivaldybėje","savivaldybė","Vietininkas (де?)"],
+      ["Reikia paimti ___.","taloną","talonas","Galininkas (Acc)"],
+      ["Noriu pratęsti ___.","leidimą","leidimas","Galininkas (Acc)"]
+    ]},
+  oras:{ic:"🌦️",name:"Погода / пори року",desc:"oras",
+    words:[
+      ["oras","погода"],["šalta","холодно"],["šilta","тепло"],["karšta","спекотно"],["lyja","іде дощ"],
+      ["sninga","іде сніг"],["saulė","сонце"],["lietus","дощ"],["sniegas","сніг"],["vėjas","вітер"],
+      ["debesys","хмари"],["dangus","небо"],["pavasaris","весна"],["vasara","літо"],["ruduo","осінь"],
+      ["žiema","зима"],["temperatūra","температура"],["laipsnis","градус"],["giedra","ясно"],["drėgna","волого"]
+    ],
+    sent:[
+      ["Šiandien šalta ir lyja.","Сьогодні холодно і йде дощ."],
+      ["Vasarą būna karšta.","Влітку буває спекотно."],
+      ["Žiemą dažnai sninga.","Взимку часто йде сніг."],
+      ["Lauke pučia vėjas.","На вулиці дme вітер."]
+    ],
+    blanks:[
+      ["___ būna karšta.","Vasarą","vasara","Galininkas часу (коли?)"],
+      ["___ dažnai sninga.","Žiemą","žiema","Galininkas часу (коли?)"]
+    ]},
+  charakteris:{ic:"🙂",name:"Характер / емоції",desc:"jausmai (співбесіда)",
+    words:[
+      ["geras","добрий"],["blogas","поганий"],["draugiškas","доброзичливий"],["darbštus","працьовитий"],
+      ["atsakingas","відповідальний"],["ramus","спокійний"],["linksmas","веселий"],["liūdnas","сумний"],
+      ["pavargęs","втомлений"],["patenkintas","задоволений"],["laimingas","щасливий"],["mandagus","ввічливий"],
+      ["kantrus","терплячий"],["sąžiningas","чесний"],["jaustis","почуватися"],["pykti","сердитися"],
+      ["džiaugtis","радіти"],["bijoti","боятися"],["mėgti","любити (щось)"],["nemėgti","не любити"]
+    ],
+    sent:[
+      ["Aš esu darbštus ir atsakingas.","Я працьовитий і відповідальний."],
+      ["Šiandien jaučiuosi gerai.","Сьогодні почуваюся добре."],
+      ["Aš esu ramus žmogus.","Я спокійна людина."],
+      ["Man patinka dirbti komandoje.","Мені подобається працювати в команді."]
+    ],
+    blanks:[
+      ["Aš esu ___ ir atsakingas.","darbštus","darbštus","Vardininkas (який я)"],
+      ["Šiandien ___ gerai.","jaučiuosi","jaustis","jaustis — aš jaučiuosi"]
+    ]},
+  veiksmai:{ic:"🏃",name:"Дієслова (3 основи)",desc:"veiksmažodžiai",
+    words:[
+      ["būti","бути"],["turėti","мати"],["eiti","йти"],["važiuoti","їхати"],["dirbti","працювати"],
+      ["gyventi","жити"],["kalbėti","говорити"],["skaityti","читати"],["rašyti","писати"],["valgyti","їсти"],
+      ["gerti","пити"],["pirkti","купувати"],["žinoti","знати"],["matyti","бачити"],["girdėti","чути"],
+      ["norėti","хотіти"],["galėti","могти"],["mokėti","вміти, платити"],["suprasti","розуміти"],["daryti","робити"]
+    ],
+    sent:[
+      ["Aš galiu kalbėti lietuviškai.","Я можу говорити литовською."],
+      ["Aš noriu suprasti.","Я хочу розуміти."],
+      ["Vakar aš dirbau, rytoj dirbsiu.","Вчора я працював, завтра працюватиму."],
+      ["Ar tu moki vairuoti?","Чи ти вмієш керувати (авто)?"]
+    ],
+    blanks:[
+      ["Aš ___ kalbėti lietuviškai.","galiu","galėti","galėti — aš galiu"],
+      ["Vakar aš ___.","dirbau","dirbti","минулий час — aš dirbau"],
+      ["Rytoj aš ___.","dirbsiu","dirbti","майбутній час — aš dirbsiu"]
+    ]},
+  budvardziai:{ic:"📐",name:"Прикметники",desc:"būdvardžiai",
+    words:[
+      ["didelis","великий"],["mažas","маленький"],["naujas","новий"],["senas","старий"],["geras","добрий"],
+      ["blogas","поганий"],["ilgas","довгий"],["trumpas","короткий"],["brangus","дорогий"],["pigus","дешевий"],
+      ["greitas","швидкий"],["lėtas","повільний"],["sunkus","важкий"],["lengvas","легкий"],["gražus","гарний"],
+      ["švarus","чистий"],["nešvarus","брудний"],["šiltas","теплий"],["šaltas","холодний"],["svarbus","важливий"]
+    ],
+    sent:[
+      ["Tai didelis miestas.","Це велике місто."],
+      ["Mano butas mažas, bet jaukus.","Моя квартира маленька, але затишна."],
+      ["Šis darbas labai svarbus.","Ця робота дуже важлива."],
+      ["Lietuvių kalba sunki, bet įdomi.","Литовська мова важка, але цікава."]
+    ],
+    blanks:[
+      ["Tai ___ miestas.","didelis","didelis","Vardininkas (ч.р.)"],
+      ["Šis darbas labai ___.","svarbus","svarbus","Vardininkas (ч.р.)"]
+    ]},
+  judejimas:{ic:"🧭",name:"Рух / місце",desc:"kur? kur link? iš kur?",
+    words:[
+      ["eiti","йти"],["vaikščioti","ходити, гуляти"],["važiuoti","їхати"],["grįžti","повертатися"],
+      ["ateiti","приходити"],["išeiti","виходити"],["atvykti","прибувати"],["išvykti","від'їжджати"],
+      ["skristi","летіти"],["vieta","місце"],["čia","тут"],["ten","там"],["namo","додому (куди)"],
+      ["namie","вдома (де)"],["lauke","надворі"],["viduje","всередині"],["toli","далеко"],
+      ["arti","близько"],["tiesiai","прямо"],["link","у напрямку"]
+    ],
+    sent:[
+      ["Aš einu į darbą.","Я йду на роботу."],
+      ["Aš grįžtu iš darbo.","Я повертаюсь з роботи."],
+      ["Aš gyvenu Lietuvoje.","Я живу в Литві."],
+      ["Aš važiuoju namo.","Я їду додому."],
+      ["Vakar buvau namie.","Вчора був удома."]
+    ],
+    blanks:[
+      ["Aš einu į ___.","darbą","darbas","į + Galininkas (куди?)"],
+      ["Aš grįžtu iš ___.","darbo","darbas","iš + Kilmininkas (звідки?)"],
+      ["Aš gyvenu ___.","Lietuvoje","Lietuva","Vietininkas (де?)"],
+      ["Aš einu į ___.","parduotuvę","parduotuvė","į + Galininkas (куди?)"]
+    ]}
+};
+
+const GRAMMAR = `
+<div class="grm"><h3>7 відмінків · darbas (ч.р.)</h3>
+<table><tr><th>Відмінок</th><th>Форма</th><th>Приклад</th></tr>
+<tr><td>Vardininkas (хто/що)</td><td><code>darbas</code></td><td>Tai geras darbas.</td></tr>
+<tr><td>Kilmininkas (кого/чого)</td><td><code>darbo</code></td><td>Ieškau darbo.</td></tr>
+<tr><td>Naudininkas (кому)</td><td><code>darbui</code></td><td>Skiriu laiko darbui.</td></tr>
+<tr><td>Galininkas (кого/що)</td><td><code>darbą</code></td><td>Turiu darbą.</td></tr>
+<tr><td>Įnagininkas (ким/чим)</td><td><code>darbu</code></td><td>Džiaugiuosi darbu.</td></tr>
+<tr><td>Vietininkas (де)</td><td><code>darbe</code></td><td>Esu darbe.</td></tr></table></div>
+
+<div class="grm"><h3>Відмінки · įmonė (ж.р.)</h3>
+<table><tr><th>Відмінок</th><th>Форма</th></tr>
+<tr><td>Nom</td><td><code>įmonė</code></td></tr><tr><td>Gen</td><td><code>įmonės</code></td></tr>
+<tr><td>Dat</td><td><code>įmonei</code></td></tr><tr><td>Acc</td><td><code>įmonę</code></td></tr>
+<tr><td>Loc (де)</td><td><code>įmonėje</code></td></tr></table></div>
+
+<div class="grm"><h3>3 правила, що дають 80% користі</h3>
+<table>
+<tr><td><code>ieškoti</code> + Kilmininkas</td><td>ieškau darb<b>o</b></td></tr>
+<tr><td><code>dirbti</code> + Vietininkas (де)</td><td>dirbu biur<b>e</b>, Vilni<b>uje</b></td></tr>
+<tr><td><code>reikia / norėti</code> + Kilmininkas</td><td>reikia darb<b>o</b>, noriu kav<b>os</b></td></tr>
+</table></div>
+
+<div class="grm"><h3>Дієслова · теперішній час</h3>
+<table><tr><th></th><th>dirbti</th><th>turėti</th><th>norėti</th></tr>
+<tr><td>aš</td><td>dirbu</td><td>turiu</td><td>noriu</td></tr>
+<tr><td>tu</td><td>dirbi</td><td>turi</td><td>nori</td></tr>
+<tr><td>jis/ji</td><td>dirba</td><td>turi</td><td>nori</td></tr>
+<tr><td>mes</td><td>dirbame</td><td>turime</td><td>norime</td></tr>
+<tr><td>jūs</td><td>dirbate</td><td>turite</td><td>norite</td></tr>
+<tr><td>jie/jos</td><td>dirba</td><td>turi</td><td>nori</td></tr></table></div>
+
+<div class="grm"><h3>Минулий і майбутній час (dirbti)</h3>
+<table><tr><th></th><th>Минулий</th><th>Майбутній</th></tr>
+<tr><td>aš</td><td>dirbau</td><td>dirbsiu</td></tr>
+<tr><td>tu</td><td>dirbai</td><td>dirbsi</td></tr>
+<tr><td>jis</td><td>dirbo</td><td>dirbs</td></tr></table>
+<p class="small">Vakar aš dirbau. · Rytoj aš dirbsiu.</p></div>
+
+<div class="grm"><h3>Корисні «склейки»</h3>
+<table>
+<tr><td>į + Galininkas</td><td>куди → einu į banką, į parduotuvę</td></tr>
+<tr><td>Vietininkas</td><td>де → Vilniuje, biure, namie</td></tr>
+<tr><td>kaip + Vardininkas</td><td>dirbu kaip testuotojas</td></tr>
+</table></div>
+`;
+
+/* ============ СТАН ============ */
+const MODES = {
+  flashcards:{ic:"🃏",t:"Картки",d:"Слово ↔ переклад, тап щоб перевернути"},
+  translate:{ic:"✍️",t:"Переклад (ввід)",d:"Друкуєш литовською — найкорисніше для відмінків"},
+  choice:{ic:"🔤",t:"Вибір варіанту",d:"Обери правильний переклад"},
+  blanks:{ic:"🧩",t:"Пропуски (відмінки)",d:"Встав правильну форму слова"},
+  matching:{ic:"🔗",t:"Відповідності",d:"З'єднай слова з перекладом"}
+};
+let selTheme=null, selMode=null, queue=[], qi=0, correct=0, prog={};
+const hasStore = typeof window.storage!=="undefined" && window.storage;
+const hasLS = (()=>{try{localStorage.setItem("__t","1");localStorage.removeItem("__t");return true;}catch(e){return false;}})();
+
+async function loadProg(){
+  try{
+    if(hasStore){const r=await window.storage.get("lt_prog");prog=JSON.parse(r.value);}
+    else if(hasLS){const v=localStorage.getItem("lt_prog");prog=v?JSON.parse(v):{};}
+  }catch(e){prog={};}
+  renderHome();
+}
+async function saveProg(){
+  try{
+    if(hasStore){await window.storage.set("lt_prog",JSON.stringify(prog));}
+    else if(hasLS){localStorage.setItem("lt_prog",JSON.stringify(prog));}
+  }catch(e){}
+}
+function key(th,w){return th+"|"+w;}
+function lvl(th,w){return prog[key(th,w)]||0;}
+function bump(th,w,ok){
+  const k=key(th,w); let v=prog[k]||0;
+  prog[k]=ok?Math.min(5,v+1):Math.max(0,v-1); saveProg();
+}
+
+/* ============ HOME ============ */
+function renderHome(){
+  // stats
+  let total=0,learned=0,review=0;
+  Object.keys(THEMES).forEach(th=>THEMES[th].words.forEach(([w])=>{
+    total++; const l=lvl(th,w); if(l>=3)learned++; else if(l>=1)review++;
+  }));
+  document.getElementById("stats").innerHTML=
+    `<div class="pill"><b>${total}</b>слів усього</div>
+     <div class="pill"><b>${learned}</b>опановано</div>
+     <div class="pill"><b>${review}</b>на повторенні</div>`;
+  // themes
+  document.getElementById("themes").innerHTML=Object.keys(THEMES).map(k=>{
+    const t=THEMES[k];
+    let mastered=0, touched=0, sum=0;
+    t.words.forEach(([w])=>{const l=lvl(k,w); sum+=Math.min(l,3); if(l>=3)mastered++; if(l>=1)touched++;});
+    const tot=t.words.length;
+    const pct=Math.round(sum/(tot*3)*100);
+    const state=mastered>=tot?"ok":touched>0?"mid":"none";
+    const col=state==="ok"?"var(--ok)":state==="mid"?"var(--warn)":"var(--line)";
+    const badge=state==="ok"?"✓ готово":`${mastered}/${tot} опановано`;
+    return `<div class="tile ${selTheme===k?'sel':''}" onclick="pickTheme('${k}')">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="ic">${t.ic}</div>
+        <span style="font-size:10px;font-weight:700;color:${col}">${badge}</span></div>
+      <div class="t">${t.name}</div>
+      <div class="d">${t.words.length} слів · ${t.desc}</div>
+      <div style="height:4px;background:var(--line);border-radius:3px;margin-top:7px;overflow:hidden">
+        <i style="display:block;height:100%;width:${pct}%;background:${col};transition:.3s"></i></div></div>`;}).join("");
+  // modes
+  document.getElementById("modes").innerHTML=Object.keys(MODES).map(k=>{
+    const m=MODES[k];return `<div class="mode ${selMode===k?'sel':''}" onclick="pickMode('${k}')"
+      style="${selMode===k?'border-color:var(--accent);background:var(--soft)':''}">
+      <div class="ic">${m.ic}</div><div><div class="t">${m.t}</div><div class="d">${m.d}</div></div></div>`;}).join("");
+  document.getElementById("start").disabled=!(selTheme&&selMode);
+}
+function pickTheme(k){selTheme=k;renderHome();}
+function pickMode(k){selMode=k;renderHome();}
+function show(id){["home","practice","grammar"].forEach(x=>document.getElementById(x).classList.add("hide"));
+  document.getElementById(id).classList.remove("hide");
+  if(id==="home")renderHome();
+  if(id==="grammar")document.getElementById("gbody").innerHTML=GRAMMAR;
+  window.scrollTo(0,0);
+}
+
+/* ============ PRACTICE ============ */
+function start(){
+  const t=THEMES[selTheme];
+  if(selMode==="blanks"){ queue=shuffle([...t.blanks]); }
+  else if(selMode==="translate"){ queue=shuffle([...t.sent]); }
+  else if(selMode==="matching"){ queue=chunk(shuffle([...t.words]),5); }
+  else { // flashcards / choice — за словами, слабші частіше
+    let pool=[...t.words]; pool.sort((a,b)=>lvl(selTheme,a[0])-lvl(selTheme,b[0]));
+    queue=selMode==="choice"?shuffle(pool):pool;
+  }
+  qi=0;correct=0;show("practice");renderQ();
+}
+function restart(){start();}
+function renderQ(){
+  const body=document.getElementById("pbody");
+  const total=queue.length;
+  document.getElementById("pbar").style.width=(qi/total*100)+"%";
+  document.getElementById("pcounter").textContent=`${Math.min(qi+1,total)} / ${total} · ✓ ${correct}`;
+  if(qi>=total){ return finish(); }
+
+  if(selMode==="flashcards") renderFlash();
+  else if(selMode==="translate") renderTranslate();
+  else if(selMode==="choice") renderChoice();
+  else if(selMode==="blanks") renderBlanks();
+  else if(selMode==="matching") renderMatch();
+}
+function next(){qi++;renderQ();}
+
+/* --- flashcards --- */
+function renderFlash(){
+  const [lt,ua]=queue[qi];
+  document.getElementById("pbody").innerHTML=`
+    <div class="prompt">Тап по картці, щоб побачити переклад</div>
+    <div class="flip" id="fl"><div class="inner" id="flin">${lt}</div></div>
+    <div id="flbtns" class="pbtns hide">
+      <button style="background:#fbecea;color:var(--bad)" onclick="flAns(false)">Не знав</button>
+      <button style="background:#eaf7ee;color:var(--ok)" onclick="flAns(true)">Знав ✓</button></div>`;
+  document.getElementById("fl").onclick=()=>{
+    document.getElementById("flin").innerHTML=`<span style="color:var(--accent)">${ua}</span>`;
+    document.getElementById("flbtns").classList.remove("hide");
+    document.querySelector("#practice .prompt")||0;
+    document.querySelector(".prompt").textContent="Знав це слово?";
+  };
+}
+function flAns(ok){const [lt]=queue[qi];if(ok)correct++;bump(selTheme,lt,ok);next();}
+
+/* --- translate (ввід) --- */
+function renderTranslate(){
+  const [lt,ua]=queue[qi];
+  document.getElementById("pbody").innerHTML=`
+    <div class="pcard"><div class="prompt">Переклади литовською:</div><div class="big">${ua}</div>
+    <input class="ans" id="inp" autocapitalize="off" autocomplete="off" placeholder="напиши литовською…">
+    <div class="fb" id="fb"></div></div>
+    <div class="pbtns"><button class="ghost" onclick="checkTr()">Перевірити</button>
+    <button id="nx" class="hide" style="background:var(--accent);color:#fff" onclick="next()">Далі ›</button></div>`;
+  const inp=document.getElementById("inp");inp.focus();
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter")checkTr();});
+}
+function norm(s){return s.toLowerCase().replace(/[.,!?]/g,"").replace(/\s+/g," ").trim();}
+function checkTr(){
+  const [lt,ua]=queue[qi];const v=document.getElementById("inp").value;
+  const fb=document.getElementById("fb");const ok=norm(v)===norm(lt);
+  if(ok){correct++;fb.className="fb ok";fb.innerHTML="✓ Точно!";}
+  else{fb.className="fb bad";fb.innerHTML=`Майже. Правильно: <b>${lt}</b>`;}
+  document.getElementById("nx").classList.remove("hide");
+  document.querySelector(".ghost").classList.add("hide");
+}
+
+/* --- choice --- */
+function renderChoice(){
+  const [lt,ua]=queue[qi];const t=THEMES[selTheme];
+  let opts=[ua];while(opts.length<4){const r=t.words[Math.floor(Math.random()*t.words.length)][1];if(!opts.includes(r))opts.push(r);}
+  opts=shuffle(opts);
+  document.getElementById("pbody").innerHTML=`
+    <div class="pcard"><div class="prompt">Що означає:</div><div class="big">${lt}</div></div>
+    <div id="opts">${opts.map(o=>`<button class="opt" onclick="chAns(this,'${enc(o)}','${enc(ua)}')">${o}</button>`).join("")}</div>
+    <div class="pbtns"><button id="nx" class="hide" style="background:var(--accent);color:#fff" onclick="next()">Далі ›</button></div>`;
+}
+function chAns(el,opt,ua){
+  const [lt]=queue[qi];const ok=dec(opt)===dec(ua);
+  document.querySelectorAll(".opt").forEach(b=>{b.onclick=null;
+    if(b.textContent===dec(ua))b.classList.add("ok");});
+  if(ok)correct++; else el.classList.add("bad");
+  bump(selTheme,lt,ok);
+  document.getElementById("nx").classList.remove("hide");
+}
+
+/* --- blanks --- */
+function renderBlanks(){
+  const [sent,ans,base,rule]=queue[qi];
+  document.getElementById("pbody").innerHTML=`
+    <div class="pcard"><div class="prompt">Встав правильну форму:</div>
+    <div class="big">${sent}</div><div class="hintword">базове слово: ${base}</div>
+    <input class="ans" id="inp" autocapitalize="off" autocomplete="off" placeholder="форма слова…">
+    <div class="fb" id="fb"></div></div>
+    <div class="pbtns"><button class="ghost" onclick="checkBl()">Перевірити</button>
+    <button id="nx" class="hide" style="background:var(--accent);color:#fff" onclick="next()">Далі ›</button></div>`;
+  const inp=document.getElementById("inp");inp.focus();
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter")checkBl();});
+}
+function checkBl(){
+  const [sent,ans,base,rule]=queue[qi];const v=document.getElementById("inp").value;
+  const fb=document.getElementById("fb");const ok=norm(v)===norm(ans);
+  if(ok){correct++;fb.className="fb ok";fb.innerHTML=`✓ Так! <b>${ans}</b> — ${rule}`;}
+  else{fb.className="fb bad";fb.innerHTML=`Правильно: <b>${ans}</b><div class="reveal">📘 ${rule}</div>`;}
+  document.getElementById("nx").classList.remove("hide");
+  document.querySelector(".ghost").classList.add("hide");
+}
+
+/* --- matching --- */
+let mSel=null;
+function renderMatch(){
+  const pairs=queue[qi];mSel=null;
+  const lts=shuffle(pairs.map((p,i)=>({txt:p[0],id:i})));
+  const uas=shuffle(pairs.map((p,i)=>({txt:p[1],id:i})));
+  document.getElementById("pbody").innerHTML=`
+    <div class="prompt">З'єднай пари (тап ліворуч, потім праворуч):</div>
+    <div class="match">
+      <div>${lts.map(x=>`<div class="mItem" data-side="l" data-id="${x.id}" onclick="mClick(this)">${x.txt}</div>`).join("")}</div>
+      <div>${uas.map(x=>`<div class="mItem" data-side="r" data-id="${x.id}" onclick="mClick(this)">${x.txt}</div>`).join("")}</div>
+    </div>
+    <div class="pbtns"><button id="nx" class="hide" style="background:var(--accent);color:#fff" onclick="next()">Далі ›</button></div>`;
+}
+function mClick(el){
+  if(!mSel){if(el.dataset.side!=="l")return;mSel=el;el.classList.add("sel");return;}
+  if(el.dataset.side!=="r"){mSel.classList.remove("sel");mSel=el.dataset.side==="l"?el:null;if(mSel)el.classList.add("sel");return;}
+  const ok=mSel.dataset.id===el.dataset.id;
+  if(ok){mSel.classList.add("done");el.classList.add("done");mSel.classList.remove("sel");
+    const pairs=queue[qi];bump(selTheme,pairs[+mSel.dataset.id][0],true);
+    if(document.querySelectorAll('.mItem.done').length===pairs.length*2){correct++;document.getElementById("nx").classList.remove("hide");}
+  } else {el.classList.add("bad");setTimeout(()=>el.classList.remove("bad"),500);mSel.classList.remove("sel");}
+  mSel=null;
+}
+
+/* --- finish --- */
+function finish(){
+  document.getElementById("pbar").style.width="100%";
+  const total=selMode==="matching"?queue.length:queue.length;
+  const pct=Math.round(correct/total*100);
+  const msg=pct>=80?"Puiku! Чудово! 🎉":pct>=50?"Gerai! Непогано, повтори слабкі.":"Reikia pakartoti — ще раз!";
+  document.getElementById("pbody").innerHTML=`
+    <div class="pcard" style="text-align:center">
+      <div class="big">${correct} / ${total}</div>
+      <div class="prompt" style="margin-top:8px">${msg}</div></div>
+    <div class="pbtns">
+      <button class="ghost" onclick="show('home')">До меню</button>
+      <button style="background:var(--accent);color:#fff" onclick="restart()">Ще раз ↻</button></div>`;
+}
+
+/* ============ helpers ============ */
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function chunk(a,n){const r=[];for(let i=0;i<a.length;i+=n)r.push(a.slice(i,i+n));return r;}
+function enc(s){return s.replace(/'/g,"\\'");}
+function dec(s){return s.replace(/\\'/g,"'");}
+
+loadProg();
+</script>
+
+</body>
+</html>
