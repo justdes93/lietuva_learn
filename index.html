@@ -108,6 +108,34 @@
   .kbd{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
   .kbd button{border:1px solid var(--line);background:var(--card);border-radius:7px;
     padding:7px 10px;font-size:15px;cursor:pointer;font-family:inherit}
+  /* listening + pictures */
+  .item{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;gap:12px}
+  .item:active{transform:scale(.99)}
+  .item .ic{font-size:26px;width:34px;text-align:center}
+  .item .t{font-weight:650;font-size:14.5px}
+  .item .d{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .item .done-tag{margin-left:auto;font-size:11px;font-weight:700;color:var(--ok)}
+  .scene{background:linear-gradient(160deg,#eef5f1,#e2efe9);border:1px solid var(--line);
+    border-radius:16px;min-height:190px;display:flex;align-items:center;justify-content:center;
+    flex-wrap:wrap;gap:6px;padding:18px;font-size:46px;line-height:1.1;text-align:center}
+  .scene .cap{flex-basis:100%;font-size:13px;color:var(--muted);font-weight:600;margin-top:8px}
+  textarea.desc{width:100%;min-height:130px;padding:13px;border:1.5px solid var(--line);
+    border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);margin-top:12px;resize:vertical}
+  textarea.desc:focus{outline:none;border-color:var(--accent)}
+  .qa{font-size:13.5px;color:var(--ink);margin:5px 0}
+  .qa .lt{font-weight:600}
+  .vocab{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .vocab span{background:var(--soft);border-radius:7px;padding:4px 9px;font-size:12.5px}
+  .model p{margin:6px 0;font-size:14.5px}
+  .model p .u{color:var(--muted);font-size:12.5px;display:block}
+  .player{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+  .player button{flex:1;min-width:130px;background:var(--accent);color:#fff;border:none;
+    border-radius:11px;padding:13px;font:inherit;font-weight:650;cursor:pointer}
+  .player button.sec{background:var(--card);color:var(--accent);border:1.5px solid var(--accent)}
+  .qcard{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:11px}
+  .qcard .qt{font-weight:650;font-size:14.5px;margin-bottom:8px}
+  .now-playing{font-size:13px;color:var(--accent);font-weight:600;min-height:18px;margin-top:4px}
 </style>
 </head>
 <body>
@@ -115,7 +143,7 @@
 <div class="wrap">
   <!-- HOME -->
   <div id="home">
-    <header><h1>🇱🇹 Lietuvių · Тренажер A1–A2 · ПМП</h1><p>1000+ слів · 9 типів вправ · відмінки · аудіо · граматика. Прогрес зберігається.</p></header>
+    <header><h1>🇱🇹 Lietuvių · Тренажер A1–A2 · ПМП</h1><p>1000+ слів · 9 типів вправ · аудіювання · опис картинок · відмінки · граматика. Прогрес зберігається.</p></header>
     <div class="bar" id="stats"></div>
 
     <h2>1 · Обери тему</h2>
@@ -128,8 +156,12 @@
     <div class="lenrow" id="lenrow"></div>
 
     <button class="go" id="start" disabled onclick="start()">Почати тренування</button>
-    <button class="go ghost" onclick="show('grammar')">📖 Граматичний довідник</button>
     <p class="small">«Мікс» щоразу тасує різні типи завдань і бере слова, які ти бачив найдавніше — тож повторень майже немає. Слова, де помиляєшся, повертаються частіше.</p>
+
+    <h2>Іспитові завдання</h2>
+    <button class="go ghost" onclick="show('listen')">🎧 Аудіювання — тексти + питання</button>
+    <button class="go ghost" onclick="openPics()">🖼️ Опис картинок (письмово)</button>
+    <button class="go ghost" onclick="show('grammar')">📖 Граматичний довідник</button>
   </div>
 
   <!-- PRACTICE -->
@@ -147,6 +179,18 @@
   <div id="grammar" class="hide">
     <div class="topbar"><button onclick="show('home')">‹ Меню</button><span class="small">Довідник</span><span></span></div>
     <div id="gbody"></div>
+  </div>
+
+  <!-- LISTENING -->
+  <div id="listen" class="hide">
+    <div class="topbar"><button onclick="show('home')">‹ Меню</button><span class="small">Аудіювання</span><span></span></div>
+    <div id="lbody"></div>
+  </div>
+
+  <!-- PICTURES -->
+  <div id="pics" class="hide">
+    <div class="topbar"><button onclick="show('home')">‹ Меню</button><span class="small">Опис картинок</span><span></span></div>
+    <div id="picbody"></div>
   </div>
 </div>
 
@@ -920,20 +964,66 @@ function speak(text){
   if(!text)return;
   text=String(text).replace(/[_]+/g," ").replace(/\s+/g," ").trim();
   if(!text)return;
+  stopSeq();
   try{ if(typeof speechSynthesis!=="undefined") speechSynthesis.cancel(); }catch(e){}
-  const url="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=lt&total=1&idx=0&textlen="
-    +text.length+"&q="+encodeURIComponent(text);
   try{
     if(_ttsAudio){ try{_ttsAudio.pause();}catch(e){} }
     _ttsAudio=new Audio();
-    // Referer мусить бути порожнім, інакше Google віддає 404 (тиша).
-    // <meta name="referrer" no-referrer> прибирає його; дублюємо й на елементі.
     try{ _ttsAudio.referrerPolicy="no-referrer"; }catch(e){}
     _ttsAudio.onerror=()=>_nativeSpeak(text);
-    _ttsAudio.src=url;
+    _ttsAudio.src=ttsUrl(text);
     const p=_ttsAudio.play();
     if(p&&p.catch)p.catch(()=>_nativeSpeak(text));
   }catch(e){ _nativeSpeak(text); }
+}
+function ttsUrl(text){
+  text=String(text).replace(/[_]+/g," ").replace(/^\s*[—–-]+\s*/,"").replace(/\s+[—–-]+\s+/g,", ").replace(/\s+/g," ").trim();
+  return "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=lt&total=1&idx=0&textlen="
+    +text.length+"&q="+encodeURIComponent(text);
+}
+/* ---- послідовне озвучення тексту (тексти > ~200 знаків розбиваємо на речення) ---- */
+let _seqAudio=null, _seqStop=false, _onSeqStep=null;
+function splitSentences(text){
+  if(Array.isArray(text)) return text.filter(Boolean);
+  return String(text).split(/(?<=[.!?…])\s+/).map(s=>s.trim()).filter(Boolean);
+}
+function stopSeq(){
+  _seqStop=true;
+  try{ if(_seqAudio){_seqAudio.pause();_seqAudio.src="";} }catch(e){}
+  try{ if(typeof speechSynthesis!=="undefined") speechSynthesis.cancel(); }catch(e){}
+  if(_onSeqStep)_onSeqStep(-1);
+}
+function playSeq(sentences, onStep, onDone){
+  sentences=splitSentences(sentences);
+  _seqStop=false; _onSeqStep=onStep||null;
+  const step=(i)=>{
+    if(_seqStop)return;
+    if(i>=sentences.length){ if(onStep)onStep(-1); if(onDone)onDone(); return; }
+    if(onStep)onStep(i);
+    const adv=()=>{ if(!_seqStop) setTimeout(()=>step(i+1), 280); };
+    try{
+      _seqAudio=new Audio();
+      try{_seqAudio.referrerPolicy="no-referrer";}catch(e){}
+      _seqAudio.onended=adv;
+      _seqAudio.onerror=()=>{ _nativeSeq(sentences[i], adv); };
+      _seqAudio.src=ttsUrl(sentences[i]);
+      const p=_seqAudio.play();
+      if(p&&p.catch)p.catch(()=>{ _nativeSeq(sentences[i], adv); });
+    }catch(e){ _nativeSeq(sentences[i], adv); }
+  };
+  step(0);
+}
+function _nativeSeq(text, done){
+  if(typeof speechSynthesis==="undefined"){ setTimeout(done, 1200); return; }
+  try{
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text); u.lang="lt-LT"; u.rate=.9;
+    const v=_voices.find(x=>/^lt([-_]|$)/i.test(x.lang))||_voices.find(x=>/lithuan/i.test(x.name));
+    if(v)u.voice=v;
+    u.onend=done; u.onerror=()=>setTimeout(done,800);
+    speechSynthesis.speak(u);
+    setTimeout(()=>{ if(!_seqStop && speechSynthesis.speaking===false) done(); }, Math.max(1500,text.length*90));
+  }catch(e){ setTimeout(done,1200); }
 }
 
 /* ============ ПУЛ СЛІВ + ВИБІР БЕЗ ПОВТОРЕНЬ ============ */
@@ -1009,10 +1099,12 @@ function renderHome(){
 function pickTheme(k){selTheme=k;renderHome();}
 function pickMode(k){selMode=k;renderHome();}
 function pickLen(n){sesLen=n;renderHome();}
-function show(id){["home","practice","grammar"].forEach(x=>document.getElementById(x).classList.add("hide"));
+function show(id){["home","practice","grammar","listen","pics"].forEach(x=>document.getElementById(x).classList.add("hide"));
   document.getElementById(id).classList.remove("hide");
+  stopSeq();
   if(id==="home")renderHome();
   if(id==="grammar")document.getElementById("gbody").innerHTML=GRAMMAR;
+  if(id==="listen")renderListenList();
   try{speechSynthesis.cancel();}catch(e){}
   window.scrollTo(0,0);
 }
@@ -1295,6 +1387,588 @@ function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Ma
 function chunk(a,n){const r=[];for(let i=0;i<a.length;i+=n)r.push(a.slice(i,i+n));return r;}
 function enc(s){return String(s).replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
 function dec(s){return String(s).replace(/\\'/g,"'").replace(/\\\\/g,"\\");}
+
+
+/* ============ ОПИС КАРТИНОК + АУДІЮВАННЯ ============ */
+const PIC_Q=[
+  ["Kas pavaizduota paveikslėlyje?","Що зображено на малюнку?"],
+  ["Kur tai vyksta?","Де це відбувається?"],
+  ["Kiek žmonių matai? Kas jie?","Скільки людей бачиш? Хто вони?"],
+  ["Ką žmonės veikia?","Що роблять люди?"],
+  ["Koks oras arba metų laikas?","Яка погода чи пора року?"],
+  ["Kaip jie jaučiasi? Ar tau patinka ši vieta? Kodėl?","Як вони почуваються? Чи подобається тобі це місце? Чому?"]
+];
+
+const LISTENING=[
+  {ic:"🌦️",title:"Orų prognozė",lt:"прогноз погоди",
+   text:[
+     ["Laba diena. Šiandien Lietuvoje bus vėsu ir lietinga.","Доброго дня. Сьогодні в Литві буде прохолодно і дощливо."],
+     ["Ryte temperatūra apie penkis laipsnius.","Зранку температура близько п'яти градусів."],
+     ["Po pietų pradės lyti, pūs stiprus vėjas.","Після обіду піде дощ, дутиме сильний вітер."],
+     ["Vakare lietus liausis, bet bus šalta.","Увечері дощ припиниться, але буде холодно."],
+     ["Rytoj oras bus geresnis ir saulėtas.","Завтра погода буде краща і сонячна."]
+   ],
+   q:[
+     ["Koks oras bus šiandien po pietų?","Яка погода буде сьогодні після обіду?",["Saulėta","Lietus ir vėjas","Sniegas"],1],
+     ["Kokia temperatūra ryte?","Яка температура зранку?",["5 laipsniai","15 laipsnių","25 laipsniai"],0],
+     ["Koks oras bus rytoj?","Яка погода буде завтра?",["Lietingas","Saulėtas","Snigs"],1]
+   ]},
+  {ic:"🚌",title:"Skelbimas stotyje",lt:"оголошення на вокзалі",
+   text:[
+     ["Dėmesio! Autobusas į Kauną išvyksta iš trečios aikštelės.","Увага! Автобус до Каунаса відправляється з третьої платформи."],
+     ["Išvykimo laikas — keturiolika valandų trisdešimt minučių.","Час відправлення — чотирнадцята година тридцять хвилин."],
+     ["Prašome keleivius pasiruošti bilietus.","Просимо пасажирів підготувати квитки."],
+     ["Kitas autobusas į Klaipėdą važiuos po valandos.","Наступний автобус до Клайпеди поїде за годину."]
+   ],
+   q:[
+     ["Į kurį miestą važiuoja autobusas iš trečios aikštelės?","До якого міста їде автобус з третьої платформи?",["Klaipėdą","Kauną","Vilnių"],1],
+     ["Kada išvyksta autobusas į Kauną?","Коли відправляється автобус до Каунаса?",["14:30","13:40","15:00"],0],
+     ["Ką prašoma pasiruošti?","Що просять підготувати?",["Pinigus","Bilietus","Dokumentus"],1]
+   ]},
+  {ic:"🛒",title:"Parduotuvėje",lt:"у магазині",
+   text:[
+     ["— Laba diena, ką norėtumėte?","— Доброго дня, що бажаєте?"],
+     ["— Norėčiau kilogramą obuolių ir duonos.","— Я хотів би кілограм яблук і хліба."],
+     ["— Obuoliai kainuoja du eurus. Kokios duonos — šviesios ar juodos?","— Яблука коштують два євро. Якого хліба — світлого чи чорного?"],
+     ["— Juodos, prašau. Kiek viskas kainuoja?","— Чорного, будь ласка. Скільки все коштує?"],
+     ["— Iš viso trys eurai penkiasdešimt centų.","— Усього три євро п'ятдесят центів."],
+     ["— Ar galiu mokėti kortele? — Taip, žinoma.","— Чи можу заплатити карткою? — Так, звісно."]
+   ],
+   q:[
+     ["Ką pirko žmogus?","Що купив чоловік?",["Obuolius ir duoną","Pieną ir sūrį","Mėsą"],0],
+     ["Kiek kainavo viskas?","Скільки коштувало все?",["2 eurus","3 eurus 50 centų","5 eurus"],1],
+     ["Kaip žmogus mokėjo?","Як чоловік платив?",["Grynaisiais","Kortele","Nemokėjo"],1]
+   ]},
+  {ic:"💊",title:"Pas gydytoją",lt:"у лікаря",
+   text:[
+     ["— Laba diena, kuo skundžiatės?","— Доброго дня, на що скаржитеся?"],
+     ["— Man skauda galvą ir gerklę. Manau, peršalau.","— У мене болить голова і горло. Думаю, застудився."],
+     ["— Ar turite temperatūros? — Taip, vakar buvo trisdešimt aštuoni laipsniai.","— Маєте температуру? — Так, учора було тридцять вісім градусів."],
+     ["— Gerkite daug arbatos ir ilsėkitės.","— Пийте багато чаю і відпочивайте."],
+     ["— Išrašysiu vaistų nuo gerklės. — Ačiū, daktare.","— Випишу ліки від горла. — Дякую, лікарю."]
+   ],
+   q:[
+     ["Kas skauda pacientui?","Що болить пацієнту?",["Pilvas","Galva ir gerklė","Koja"],1],
+     ["Kokia buvo temperatūra?","Яка була температура?",["36","38","40"],1],
+     ["Ką patarė gydytojas?","Що порадив лікар?",["Gerti arbatą ir ilsėtis","Sportuoti","Dirbti"],0]
+   ]},
+  {ic:"📞",title:"Telefono žinutė",lt:"телефонне повідомлення",
+   text:[
+     ["Labas, Tomai! Čia Indrė.","Привіт, Томасе! Це Індре."],
+     ["Rytoj susitinkame dešimtą valandą prie kavinės centre.","Завтра зустрічаємось о десятій годині біля кафе в центрі."],
+     ["Nepamiršk atsinešti dokumentų.","Не забудь принести документи."],
+     ["Jei negali, paskambink man vakare.","Якщо не можеш, подзвони мені ввечері."]
+   ],
+   q:[
+     ["Kada jie susitinka?","Коли вони зустрічаються?",["9 valandą","10 valandą","11 valandą"],1],
+     ["Kur jie susitinka?","Де вони зустрічаються?",["Prie kavinės","Stotyje","Namuose"],0],
+     ["Ką reikia atsinešti?","Що треба принести?",["Pinigus","Dokumentus","Knygą"],1]
+   ]},
+  {ic:"💼",title:"Darbo skelbimas",lt:"оголошення про роботу",
+   text:[
+     ["Mūsų įmonė ieško vairuotojo.","Наша компанія шукає водія."],
+     ["Reikia turėti vairuotojo pažymėjimą ir patirties.","Потрібно мати водійське посвідчення і досвід."],
+     ["Darbas penkias dienas per savaitę, nuo aštuntos iki penktos.","Робота п'ять днів на тиждень, з восьмої до п'ятої."],
+     ["Atlyginimas — tūkstantis du šimtai eurų.","Зарплата — тисяча двісті євро."],
+     ["Dėl pokalbio skambinkite telefonu.","Щодо співбесіди телефонуйте."]
+   ],
+   q:[
+     ["Kokio darbuotojo ieško įmonė?","Якого працівника шукає компанія?",["Mokytojo","Vairuotojo","Gydytojo"],1],
+     ["Kiek dienų per savaitę darbas?","Скільки днів на тиждень робота?",["3","5","7"],1],
+     ["Koks atlyginimas?","Яка зарплата?",["1200 eurų","800 eurų","2000 eurų"],0]
+   ]},
+  {ic:"🍲",title:"Restorane",lt:"у ресторані",
+   text:[
+     ["— Sveiki, ar turite laisvą staliuką dviem?","— Вітаю, чи є вільний столик на двох?"],
+     ["— Taip, prašom prie lango.","— Так, прошу біля вікна."],
+     ["— Norėtume sriubos ir dvi kavas.","— Ми б хотіли супу і дві кави."],
+     ["— Gerai. Ar norėsite deserto? — Taip, vieną šokoladinį tortą.","— Добре. Бажаєте десерт? — Так, один шоколадний торт."]
+   ],
+   q:[
+     ["Kiek žmonių atėjo?","Скільки людей прийшло?",["Vienas","Du","Trys"],1],
+     ["Ką jie užsisakė gerti?","Що вони замовили пити?",["Arbatą","Kavą","Sultis"],1],
+     ["Kokį desertą pasirinko?","Який десерт обрали?",["Ledus","Šokoladinį tortą","Spurgą"],1]
+   ]},
+  {ic:"🏛️",title:"Migracijos įstaigoje",lt:"у міграційній установі",
+   text:[
+     ["— Laba diena. Norėčiau pratęsti leidimą gyventi.","— Доброго дня. Я хотів би продовжити дозвіл на проживання."],
+     ["— Ar užpildėte prašymą? — Taip, ir atsinešiau pasą bei nuotrauką.","— Ви заповнили заяву? — Так, і приніс паспорт та фото."],
+     ["— Gerai. Paimkite taloną ir palaukite eilėje.","— Добре. Візьміть талон і зачекайте в черзі."],
+     ["— Kiek laiko reikės laukti? — Maždaug dvidešimt minučių.","— Скільки доведеться чекати? — Приблизно двадцять хвилин."]
+   ],
+   q:[
+     ["Ką nori padaryti žmogus?","Що хоче зробити людина?",["Gauti pasą","Pratęsti leidimą gyventi","Atidaryti sąskaitą"],1],
+     ["Ką jis atsinešė?","Що він приніс?",["Pasą ir nuotrauką","Tik pinigus","Nieko"],0],
+     ["Kiek reikės laukti?","Скільки доведеться чекати?",["5 minutes","20 minučių","Valandą"],1]
+   ]},
+  {ic:"🕐",title:"Kasdienė diena",lt:"звичайний день",
+   text:[
+     ["Aš keliuosi septintą valandą ryto.","Я встаю о сьомій годині ранку."],
+     ["Po pusryčių važiuoju į darbą autobusu.","Після сніданку їду на роботу автобусом."],
+     ["Dirbu nuo devintos iki šeštos.","Працюю з дев'ятої до шостої."],
+     ["Vakare gaminu vakarienę ir skaitau knygą.","Увечері готую вечерю і читаю книгу."],
+     ["Savaitgaliais mėgstu pasivaikščioti parke.","На вихідних люблю прогулятися в парку."]
+   ],
+   q:[
+     ["Kada keliasi žmogus?","Коли встає людина?",["6 valandą","7 valandą","8 valandą"],1],
+     ["Kaip važiuoja į darbą?","Як їде на роботу?",["Automobiliu","Autobusu","Dviračiu"],1],
+     ["Ką mėgsta veikti savaitgaliais?","Що любить робити на вихідних?",["Vaikščioti parke","Dirbti","Miegoti"],0]
+   ]}
+];
+
+const PICTURES=[
+  {ic:"👨‍👩‍👧‍👦🍲🥗🍞🥤",lt:"Šeima prie pietų stalo",ua:"Сім'я за обіднім столом",
+   vocab:[["šeima","сім'я"],["pietūs","обід"],["stalas","стіл"],["sriuba","суп"],["valgyti","їсти"],["kartu","разом"],["skanus","смачний"],["laimingas","щасливий"]],
+   model:[
+     ["Paveikslėlyje matau šeimą.","На малюнку я бачу сім'ю."],
+     ["Jie sėdi prie stalo virtuvėje.","Вони сидять за столом на кухні."],
+     ["Tai mama, tėtis ir du vaikai.","Це мама, тато і двоє дітей."],
+     ["Šeima valgo pietus.","Сім'я обідає."],
+     ["Ant stalo yra sriuba, salotos ir duona.","На столі суп, салат і хліб."],
+     ["Visi kalbasi ir šypsosi.","Усі розмовляють і усміхаються."],
+     ["Mama pila sriubą į lėkštes.","Мама наливає суп у тарілки."],
+     ["Vaikai geria sultis.","Діти п'ють сік."],
+     ["Manau, maistas labai skanus.","Думаю, їжа дуже смачна."],
+     ["Šeima atrodo laiminga.","Сім'я виглядає щасливою."],
+     ["Man patinka, kai šeima valgo kartu.","Мені подобається, коли сім'я їсть разом."]
+   ]},
+  {ic:"🛒🏬🧺💳",lt:"Parduotuvė",ua:"Магазин",
+   vocab:[["parduotuvė","магазин"],["pirkti","купувати"],["krepšys","кошик"],["kasa","каса"],["kaina","ціна"],["pardavėja","продавчиня"],["kortelė","картка"],["prekės","товари"]],
+   model:[
+     ["Paveikslėlyje matau parduotuvę.","На малюнку я бачу магазин."],
+     ["Tai didelis prekybos centras.","Це великий торговий центр."],
+     ["Žmonės perka maistą ir prekes.","Люди купують їжу і товари."],
+     ["Moteris stumia pilną krepšį.","Жінка штовхає повний візок."],
+     ["Lentynose yra daug produktų.","На полицях багато продуктів."],
+     ["Prie kasos stovi eilė.","Біля каси стоїть черга."],
+     ["Vyras moka kortele.","Чоловік платить карткою."],
+     ["Pardavėja padeda klientams.","Продавчиня допомагає клієнтам."],
+     ["Manau, čia nepigu.","Думаю, тут недешево."],
+     ["Aš irgi dažnai einu į parduotuvę.","Я теж часто ходжу в магазин."]
+   ]},
+  {ic:"🥕🍎🍅🧅🧑‍🌾",lt:"Turgus",ua:"Ринок",
+   vocab:[["turgus","ринок"],["daržovės","овочі"],["vaisiai","фрукти"],["šviežias","свіжий"],["sverti","важити"],["pigus","дешевий"],["parduoti","продавати"],["spalvingas","барвистий"]],
+   model:[
+     ["Paveikslėlyje matau turgų.","На малюнку я бачу ринок."],
+     ["Tai vyksta lauke.","Це відбувається надворі."],
+     ["Žmonės parduoda vaisius ir daržoves.","Люди продають фрукти й овочі."],
+     ["Matau obuolius, morkas ir pomidorus.","Бачу яблука, моркву і помідори."],
+     ["Senas vyras sveria bulves.","Літній чоловік зважує картоплю."],
+     ["Moteris perka šviežias gėles.","Жінка купує свіжі квіти."],
+     ["Produktai atrodo švieži ir spalvingi.","Продукти виглядають свіжими й барвистими."],
+     ["Oras geras, šviečia saulė.","Погода гарна, світить сонце."],
+     ["Turguje viskas pigiau nei parduotuvėje.","На ринку все дешевше, ніж у магазині."],
+     ["Man patinka pirkti turguje.","Мені подобається купувати на ринку."]
+   ]},
+  {ic:"👩‍🍳🍳🔪🥘",lt:"Virtuvėje gaminamas maistas",ua:"Готування на кухні",
+   vocab:[["virtuvė","кухня"],["gaminti","готувати"],["viryklė","плита"],["peilis","ніж"],["pjaustyti","різати"],["puodas","каструля"],["virti","варити"],["vakarienė","вечеря"]],
+   model:[
+     ["Paveikslėlyje matau virtuvę.","На малюнку я бачу кухню."],
+     ["Moteris gamina maistą.","Жінка готує їжу."],
+     ["Ji stovi prie viryklės.","Вона стоїть біля плити."],
+     ["Ant stalo yra daržovės ir peilis.","На столі овочі й ніж."],
+     ["Ji pjausto morkas ir svogūnus.","Вона ріже моркву і цибулю."],
+     ["Puode verda sriuba.","У каструлі вариться суп."],
+     ["Virtuvė šviesi ir švari.","Кухня світла і чиста."],
+     ["Kvepia labai skaniai.","Пахне дуже смачно."],
+     ["Manau, ji ruošia vakarienę.","Думаю, вона готує вечерю."],
+     ["Aš taip pat mėgstu gaminti.","Я теж люблю готувати."]
+   ]},
+  {ic:"☕🍽️🧑‍🍳🍰",lt:"Restoranas / kavinė",ua:"Ресторан / кафе",
+   vocab:[["kavinė","кафе"],["padavėjas","офіціант"],["staliukas","столик"],["patiekalas","страва"],["kava","кава"],["jaukus","затишний"],["draugai","друзі"],["juoktis","сміятися"]],
+   model:[
+     ["Paveikslėlyje matau kavinę.","На малюнку я бачу кафе."],
+     ["Žmonės sėdi prie staliukų.","Люди сидять за столиками."],
+     ["Padavėjas neša patiekalus.","Офіціант несе страви."],
+     ["Ant stalo yra kava ir tortas.","На столі кава і торт."],
+     ["Du draugai kalbasi ir juokiasi.","Двоє друзів розмовляють і сміються."],
+     ["Kavinė jauki ir graži.","Кафе затишне і гарне."],
+     ["Pro langą matosi gatvė.","Крізь вікно видно вулицю."],
+     ["Manau, jiems čia patinka.","Думаю, їм тут подобається."],
+     ["Žmonės atrodo patenkinti.","Люди виглядають задоволеними."],
+     ["Aš mėgstu eiti į kavinę su draugais.","Я люблю ходити в кафе з друзями."]
+   ]},
+  {ic:"👨‍⚕️🩺💊🛏️",lt:"Gydytojo kabinetas",ua:"Кабінет лікаря",
+   vocab:[["gydytojas","лікар"],["pacientas","пацієнт"],["kabinetas","кабінет"],["apžiūrėti","оглядати"],["vaistai","ліки"],["temperatūra","температура"],["sirgti","хворіти"],["sveikas","здоровий"]],
+   model:[
+     ["Paveikslėlyje matau gydytojo kabinetą.","На малюнку я бачу кабінет лікаря."],
+     ["Gydytojas apžiūri pacientą.","Лікар оглядає пацієнта."],
+     ["Pacientas sėdi ant kėdės.","Пацієнт сидить на стільці."],
+     ["Gydytojas vilki baltą chalatą.","Лікар одягнений у білий халат."],
+     ["Ant stalo yra dokumentai ir vaistai.","На столі документи і ліки."],
+     ["Gydytojas matuoja temperatūrą.","Лікар вимірює температуру."],
+     ["Pacientas atrodo truputį pavargęs.","Пацієнт виглядає трохи втомленим."],
+     ["Kabinetas švarus ir tvarkingas.","Кабінет чистий і охайний."],
+     ["Manau, pacientas peršalo.","Думаю, пацієнт застудився."],
+     ["Reikia sveikai gyventi, kad nesirgtum.","Треба здорово жити, щоб не хворіти."]
+   ]},
+  {ic:"💊🏪🧑‍⚕️🧴",lt:"Vaistinė",ua:"Аптека",
+   vocab:[["vaistinė","аптека"],["vaistininkas","фармацевт"],["vaistai","ліки"],["receptas","рецепт"],["vitaminai","вітаміни"],["vartoti","вживати"],["pasveikti","одужати"],["lentyna","полиця"]],
+   model:[
+     ["Paveikslėlyje matau vaistinę.","На малюнку я бачу аптеку."],
+     ["Už prekystalio stovi vaistininkė.","За прилавком стоїть фармацевтка."],
+     ["Ji paduoda vaistus moteriai.","Вона подає ліки жінці."],
+     ["Lentynose daug vaistų ir vitaminų.","На полицях багато ліків і вітамінів."],
+     ["Moteris turi receptą.","Жінка має рецепт."],
+     ["Vaistininkė paaiškina, kaip vartoti vaistus.","Фармацевтка пояснює, як вживати ліки."],
+     ["Vaistinė šviesi ir tvarkinga.","Аптека світла і охайна."],
+     ["Manau, moteris serga.","Думаю, жінка хвора."],
+     ["Vaistai padeda pasveikti.","Ліки допомагають одужати."],
+     ["Vaistinė yra svarbi vieta mieste.","Аптека — важливе місце в місті."]
+   ]},
+  {ic:"💻🧑‍💼📊🗂️",lt:"Biuras / darbas",ua:"Офіс / робота",
+   vocab:[["biuras","офіс"],["kompiuteris","комп'ютер"],["dirbti","працювати"],["kolega","колега"],["projektas","проєкт"],["dokumentai","документи"],["komanda","команда"],["užsiėmęs","зайнятий"]],
+   model:[
+     ["Paveikslėlyje matau biurą.","На малюнку я бачу офіс."],
+     ["Žmonės dirba prie kompiuterių.","Люди працюють за комп'ютерами."],
+     ["Tai didelis šviesus kambarys.","Це велика світла кімната."],
+     ["Vyras kalba telefonu.","Чоловік говорить по телефону."],
+     ["Moteris rašo elektroninį laišką.","Жінка пише електронний лист."],
+     ["Ant stalų yra dokumentai ir kava.","На столах документи і кава."],
+     ["Kolegos aptaria projektą.","Колеги обговорюють проєкт."],
+     ["Visi atrodo užsiėmę.","Усі виглядають зайнятими."],
+     ["Manau, jie dirba kartu komandoje.","Думаю, вони працюють разом у команді."],
+     ["Aš irgi norėčiau dirbti tokiame biure.","Я теж хотів би працювати в такому офісі."]
+   ]},
+  {ic:"👷🏗️🧱🔨",lt:"Statybvietė",ua:"Будівельний майданчик",
+   vocab:[["statybvietė","будмайданчик"],["statybininkas","будівельник"],["statyti","будувати"],["šalmas","каска"],["plyta","цегла"],["įrankiai","інструменти"],["sunkus","важкий"],["pastatas","будівля"]],
+   model:[
+     ["Paveikslėlyje matau statybvietę.","На малюнку я бачу будмайданчик."],
+     ["Darbininkai stato namą.","Робітники будують дім."],
+     ["Jie vilki šalmus ir oranžines liemenes.","Вони в касках і помаранчевих жилетах."],
+     ["Vienas vyras neša plytas.","Один чоловік несе цеглу."],
+     ["Kitas dirba su kranu.","Інший працює з краном."],
+     ["Matau įrankius ir statybines medžiagas.","Бачу інструменти і будматеріали."],
+     ["Darbas sunkus ir pavojingas.","Робота важка і небезпечна."],
+     ["Oras saulėtas.","Погода сонячна."],
+     ["Manau, jie stato naują pastatą.","Думаю, вони будують нову будівлю."],
+     ["Statybininkai labai darbštūs.","Будівельники дуже працьовиті."]
+   ]},
+  {ic:"👩‍🏫📚✏️🎒",lt:"Mokykla / klasė",ua:"Школа / клас",
+   vocab:[["klasė","клас"],["mokinys","учень"],["mokytoja","вчителька"],["lenta","дошка"],["sąsiuvinis","зошит"],["pamoka","урок"],["knyga","книга"],["mokytis","вчитися"]],
+   model:[
+     ["Paveikslėlyje matau klasę.","На малюнку я бачу клас."],
+     ["Mokiniai sėdi prie suolų.","Учні сидять за партами."],
+     ["Mokytoja rašo ant lentos.","Вчителька пише на дошці."],
+     ["Vaikai klausosi ir rašo į sąsiuvinius.","Діти слухають і пишуть у зошити."],
+     ["Ant stalų yra knygos ir pieštukai.","На партах книги й олівці."],
+     ["Klasė šviesi, ant sienos kabo žemėlapis.","Клас світлий, на стіні висить карта."],
+     ["Viena mergaitė kelia ranką.","Одна дівчинка піднімає руку."],
+     ["Manau, vyksta lietuvių kalbos pamoka.","Думаю, триває урок литовської мови."],
+     ["Mokiniai atrodo susidomėję.","Учні виглядають зацікавленими."],
+     ["Mokytis labai svarbu.","Вчитися дуже важливо."]
+   ]},
+  {ic:"🌳🚶‍♀️🐕☀️",lt:"Parkas / pasivaikščiojimas",ua:"Парк / прогулянка",
+   vocab:[["parkas","парк"],["vaikščioti","гуляти"],["takelis","доріжка"],["šuo","собака"],["suoliukas","лавка"],["medis","дерево"],["ilsėtis","відпочивати"],["gamta","природа"]],
+   model:[
+     ["Paveikslėlyje matau parką.","На малюнку я бачу парк."],
+     ["Žmonės vaikšto takeliais.","Люди гуляють доріжками."],
+     ["Moteris veda šunį.","Жінка вигулює собаку."],
+     ["Vaikai žaidžia ant žolės.","Діти граються на траві."],
+     ["Senelis sėdi ant suoliuko.","Дідусь сидить на лавці."],
+     ["Auga žali medžiai ir gėlės.","Ростуть зелені дерева і квіти."],
+     ["Oras šiltas, šviečia saulė.","Погода тепла, світить сонце."],
+     ["Visi ilsisi ir mėgaujasi gamta.","Усі відпочивають і насолоджуються природою."],
+     ["Manau, tai vasara.","Думаю, це літо."],
+     ["Aš irgi mėgstu vaikščioti parke.","Я теж люблю гуляти в парку."]
+   ]},
+  {ic:"🏖️☀️🏐🌊",lt:"Paplūdimys / vasara",ua:"Пляж / літо",
+   vocab:[["paplūdimys","пляж"],["jūra","море"],["maudytis","купатися"],["smėlis","пісок"],["saulė","сонце"],["karšta","спекотно"],["vasara","літо"],["kamuolys","м'яч"]],
+   model:[
+     ["Paveikslėlyje matau paplūdimį.","На малюнку я бачу пляж."],
+     ["Žmonės ilsisi prie jūros.","Люди відпочивають біля моря."],
+     ["Vaikai maudosi vandenyje.","Діти купаються у воді."],
+     ["Kiti guli ant smėlio saulėje.","Інші лежать на піску під сонцем."],
+     ["Du draugai žaidžia su kamuoliu.","Двоє друзів грають з м'ячем."],
+     ["Dangus mėlynas, šviečia saulė.","Небо синє, світить сонце."],
+     ["Oras labai karštas.","Погода дуже спекотна."],
+     ["Tai tikriausiai vasara.","Це, напевно, літо."],
+     ["Visi atrodo laimingi ir patenkinti.","Усі виглядають щасливими й задоволеними."],
+     ["Man patinka vasara prie jūros.","Мені подобається літо біля моря."]
+   ]},
+  {ic:"❄️⛄🧣🌨️",lt:"Žiema / sniegas",ua:"Зима / сніг",
+   vocab:[["žiema","зима"],["sniegas","сніг"],["šalta","холодно"],["senis besmegenis","сніговик"],["kepurė","шапка"],["šalikas","шарф"],["šiltas","теплий"],["snigti","йти (про сніг)"]],
+   model:[
+     ["Paveikslėlyje matau žiemą.","На малюнку я бачу зиму."],
+     ["Visur baltas sniegas.","Всюди білий сніг."],
+     ["Vaikai lipdo senį besmegenį.","Діти ліплять сніговика."],
+     ["Kiti žaidžia sniego gniūžtėmis.","Інші граються у сніжки."],
+     ["Žmonės vilki šiltus drabužius.","Люди одягнені в теплий одяг."],
+     ["Jie užsidėję kepures ir šalikus.","Вони в шапках і шарфах."],
+     ["Oras šaltas, sninga.","Погода холодна, йде сніг."],
+     ["Medžiai padengti sniegu.","Дерева вкриті снігом."],
+     ["Visi linksmi, nors šalta.","Усі веселі, хоч і холодно."],
+     ["Man patinka žiema ir sniegas.","Мені подобається зима і сніг."]
+   ]},
+  {ic:"🏙️🚗🚦🚶",lt:"Miesto gatvė",ua:"Міська вулиця",
+   vocab:[["gatvė","вулиця"],["automobilis","авто"],["šaligatvis","тротуар"],["šviesoforas","світлофор"],["pėsčiasis","пішохід"],["pastatas","будівля"],["eismas","рух"],["triukšmas","шум"]],
+   model:[
+     ["Paveikslėlyje matau miesto gatvę.","На малюнку я бачу міську вулицю."],
+     ["Gatvėje daug automobilių ir žmonių.","На вулиці багато авто і людей."],
+     ["Žmonės eina šaligatviu.","Люди йдуть тротуаром."],
+     ["Prie šviesoforo laukia pėstieji.","Біля світлофора чекають пішоходи."],
+     ["Matau aukštus pastatus ir parduotuves.","Бачу високі будівлі й магазини."],
+     ["Važiuoja autobusas ir dviratininkas.","Їде автобус і велосипедист."],
+     ["Mieste daug eismo ir triukšmo.","У місті багато руху й шуму."],
+     ["Oras debesuotas.","Погода хмарна."],
+     ["Manau, tai didelis miestas.","Думаю, це велике місто."],
+     ["Mieste visada daug veiklos.","У місті завжди багато всього відбувається."]
+   ]},
+  {ic:"🚌🚏🧍🕐",lt:"Autobusų stotelė",ua:"Автобусна зупинка",
+   vocab:[["stotelė","зупинка"],["autobusas","автобус"],["laukti","чекати"],["tvarkaraštis","розклад"],["bilietas","квиток"],["keleivis","пасажир"],["transportas","транспорт"],["patogus","зручний"]],
+   model:[
+     ["Paveikslėlyje matau autobusų stotelę.","На малюнку я бачу автобусну зупинку."],
+     ["Žmonės laukia autobuso.","Люди чекають автобус."],
+     ["Moteris žiūri į tvarkaraštį.","Жінка дивиться на розклад."],
+     ["Vyras skaito telefone.","Чоловік читає в телефоні."],
+     ["Atvažiuoja autobusas.","Під'їжджає автобус."],
+     ["Žmonės turi bilietus.","Люди мають квитки."],
+     ["Stotelėje yra suoliukas ir stogelis.","На зупинці є лавка і навіс."],
+     ["Oras vėsus.","Погода прохолодна."],
+     ["Manau, žmonės važiuoja į darbą.","Думаю, люди їдуть на роботу."],
+     ["Viešasis transportas labai patogus.","Громадський транспорт дуже зручний."]
+   ]},
+  {ic:"✈️🧳🛫🗺️",lt:"Oro uostas / kelionė",ua:"Аеропорт / подорож",
+   vocab:[["oro uostas","аеропорт"],["lėktuvas","літак"],["keliauti","подорожувати"],["lagaminas","валіза"],["skrydis","рейс"],["keleivis","пасажир"],["pasas","паспорт"],["kelionė","подорож"]],
+   model:[
+     ["Paveikslėlyje matau oro uostą.","На малюнку я бачу аеропорт."],
+     ["Žmonės keliauja su lagaminais.","Люди подорожують з валізами."],
+     ["Vyras registruojasi prie kasos.","Чоловік реєструється біля стійки."],
+     ["Lėktuvas stovi lauke.","Літак стоїть надворі."],
+     ["Keleiviai laukia skrydžio.","Пасажири чекають на рейс."],
+     ["Moteris žiūri į informacijos lentą.","Жінка дивиться на інформаційне табло."],
+     ["Visi turi bilietus ir pasus.","Усі мають квитки і паспорти."],
+     ["Manau, jie skrenda atostogų.","Думаю, вони летять у відпустку."],
+     ["Kelionė lėktuvu greita.","Подорож літаком швидка."],
+     ["Aš norėčiau daugiau keliauti.","Я хотів би більше подорожувати."]
+   ]},
+  {ic:"⚽🏟️🏃👟",lt:"Sportas / stadionas",ua:"Спорт / стадіон",
+   vocab:[["stadionas","стадіон"],["sportas","спорт"],["futbolas","футбол"],["komanda","команда"],["kamuolys","м'яч"],["žiūrovai","глядачі"],["rungtynės","матч"],["sveikata","здоров'я"]],
+   model:[
+     ["Paveikslėlyje matau stadioną.","На малюнку я бачу стадіон."],
+     ["Žmonės žaidžia futbolą.","Люди грають у футбол."],
+     ["Komandos bėga paskui kamuolį.","Команди біжать за м'ячем."],
+     ["Žiūrovai sėdi tribūnose ir ploja.","Глядачі сидять на трибунах і плескають."],
+     ["Sportininkai vilki sportinę aprangą.","Спортсмени в спортивній формі."],
+     ["Oras saulėtas ir šiltas.","Погода сонячна і тепла."],
+     ["Visi labai susijaudinę.","Усі дуже схвильовані."],
+     ["Manau, vyksta svarbios rungtynės.","Думаю, триває важливий матч."],
+     ["Sportas naudingas sveikatai.","Спорт корисний для здоров'я."],
+     ["Aš irgi mėgstu sportuoti.","Я теж люблю займатися спортом."]
+   ]},
+  {ic:"🧹🧺🧽🏠",lt:"Namų ruoša",ua:"Прибирання вдома",
+   vocab:[["tvarkyti","прибирати"],["siurbti","пилососити"],["plauti indus","мити посуд"],["dulkės","пил"],["švaru","чисто"],["tvarkinga","охайно"],["namai","дім"],["darbštus","працьовитий"]],
+   model:[
+     ["Paveikslėlyje matau žmones namuose.","На малюнку я бачу людей удома."],
+     ["Jie tvarko butą.","Вони прибирають квартиру."],
+     ["Moteris siurbia grindis.","Жінка пилососить підлогу."],
+     ["Vyras plauna indus.","Чоловік миє посуд."],
+     ["Vaikas šluosto dulkes.","Дитина витирає пил."],
+     ["Visi dirba kartu.","Усі працюють разом."],
+     ["Namuose tampa švaru ir tvarkinga.","Удома стає чисто й охайно."],
+     ["Manau, tai savaitgalio rytas.","Думаю, це ранок вихідного."],
+     ["Visi atrodo darbštūs.","Усі виглядають працьовитими."],
+     ["Svarbu, kad namuose būtų švaru.","Важливо, щоб удома було чисто."]
+   ]},
+  {ic:"🌻🥬🪴🧑‍🌾",lt:"Sodas / daržas",ua:"Сад / город",
+   vocab:[["sodas","сад"],["daržas","город"],["laistyti","поливати"],["augti","рости"],["pomidoras","помідор"],["žemė","земля"],["pavasaris","весна"],["auginti","вирощувати"]],
+   model:[
+     ["Paveikslėlyje matau sodą.","На малюнку я бачу сад."],
+     ["Žmonės dirba darže.","Люди працюють на городі."],
+     ["Moteris laisto daržoves.","Жінка поливає овочі."],
+     ["Vyras kasa žemę.","Чоловік копає землю."],
+     ["Auga pomidorai, agurkai ir gėlės.","Ростуть помідори, огірки і квіти."],
+     ["Oras šiltas ir saulėtas.","Погода тепла і сонячна."],
+     ["Tai pavasaris arba vasara.","Це весна або літо."],
+     ["Visi mėgaujasi darbu lauke.","Усі насолоджуються роботою надворі."],
+     ["Manau, jie augina savo daržoves.","Думаю, вони вирощують свої овочі."],
+     ["Darbas sode labai naudingas.","Робота в саду дуже корисна."]
+   ]},
+  {ic:"🎂🎈🎁🥳",lt:"Gimtadienis / šventė",ua:"День народження / свято",
+   vocab:[["gimtadienis","день народження"],["šventė","свято"],["tortas","торт"],["žvakutė","свічка"],["dovana","подарунок"],["balionas","кулька"],["švęsti","святкувати"],["džiaugtis","радіти"]],
+   model:[
+     ["Paveikslėlyje matau gimtadienio šventę.","На малюнку я бачу святкування дня народження."],
+     ["Žmonės švenčia kartu.","Люди святкують разом."],
+     ["Ant stalo stovi tortas su žvakutėmis.","На столі торт зі свічками."],
+     ["Vaikai pučia balionus.","Діти надувають кульки."],
+     ["Visi dovanoja dovanas.","Усі дарують подарунки."],
+     ["Kambarys papuoštas spalvingai.","Кімната прикрашена барвисто."],
+     ["Žmonės dainuoja ir džiaugiasi.","Люди співають і радіють."],
+     ["Manau, švenčia vaiko gimtadienį.","Думаю, святкують день народження дитини."],
+     ["Visi labai laimingi.","Усі дуже щасливі."],
+     ["Aš irgi mėgstu šventes.","Я теж люблю свята."]
+   ]},
+  {ic:"📚🤫🪑👓",lt:"Biblioteka",ua:"Бібліотека",
+   vocab:[["biblioteka","бібліотека"],["knyga","книга"],["skaityti","читати"],["lentyna","полиця"],["studentas","студент"],["tylu","тихо"],["užrašai","нотатки"],["egzaminas","іспит"]],
+   model:[
+     ["Paveikslėlyje matau biblioteką.","На малюнку я бачу бібліотеку."],
+     ["Žmonės skaito knygas.","Люди читають книги."],
+     ["Aplink yra didelės lentynos su knygomis.","Навколо великі полиці з книгами."],
+     ["Studentai sėdi prie stalų.","Студенти сидять за столами."],
+     ["Mergina rašo užrašus.","Дівчина пише нотатки."],
+     ["Bibliotekoje labai tylu.","У бібліотеці дуже тихо."],
+     ["Šviesa krenta pro langą.","Світло падає крізь вікно."],
+     ["Manau, jie ruošiasi egzaminui.","Думаю, вони готуються до іспиту."],
+     ["Visi susikaupę.","Усі зосереджені."],
+     ["Skaityti knygas labai naudinga.","Читати книги дуже корисно."]
+   ]},
+  {ic:"🏥🚑🩺👩‍⚕️",lt:"Ligoninė",ua:"Лікарня",
+   vocab:[["ligoninė","лікарня"],["slaugytoja","медсестра"],["pacientas","пацієнт"],["lova","ліжко"],["greitoji","швидка"],["koridorius","коридор"],["medikas","медик"],["sveikata","здоров'я"]],
+   model:[
+     ["Paveikslėlyje matau ligoninę.","На малюнку я бачу лікарню."],
+     ["Gydytojai ir slaugytojos dirba.","Лікарі та медсестри працюють."],
+     ["Pacientas guli lovoje.","Пацієнт лежить у ліжку."],
+     ["Slaugytoja matuoja kraujospūdį.","Медсестра вимірює тиск."],
+     ["Atvažiuoja greitoji pagalba.","Під'їжджає швидка допомога."],
+     ["Koridoriuje laukia žmonės.","У коридорі чекають люди."],
+     ["Ligoninė didelė ir švari.","Лікарня велика і чиста."],
+     ["Manau, pacientas serga.","Думаю, пацієнт хворий."],
+     ["Medikai jam padeda.","Медики йому допомагають."],
+     ["Sveikata yra svarbiausia.","Здоров'я — найважливіше."]
+   ]},
+  {ic:"☕👫💬🍰",lt:"Kavinė su draugais",ua:"Кафе з друзями",
+   vocab:[["draugai","друзі"],["kavinė","кафе"],["kava","кава"],["pyragas","пиріг"],["kalbėtis","розмовляти"],["juoktis","сміятися"],["susitikti","зустрітися"],["smagu","весело"]],
+   model:[
+     ["Paveikslėlyje matau draugus kavinėje.","На малюнку я бачу друзів у кафе."],
+     ["Jie sėdi prie staliuko.","Вони сидять за столиком."],
+     ["Geria kavą ir valgo pyragą.","П'ють каву і їдять пиріг."],
+     ["Visi kalbasi ir juokiasi.","Усі розмовляють і сміються."],
+     ["Ant stalo yra puodeliai ir telefonai.","На столі чашки і телефони."],
+     ["Kavinė jauki ir šilta.","Кафе затишне і тепле."],
+     ["Draugai linksmai leidžia laiką.","Друзі весело проводять час."],
+     ["Manau, jie seniai nesimatė.","Думаю, вони давно не бачилися."],
+     ["Visi atrodo laimingi.","Усі виглядають щасливими."],
+     ["Smagu susitikti su draugais.","Приємно зустрітися з друзями."]
+   ]},
+  {ic:"🌲🧺🔥🏕️",lt:"Iškyla miške",ua:"Пікнік у лісі",
+   vocab:[["miškas","ліс"],["iškyla","пікнік"],["gamta","природа"],["laužas","багаття"],["dešrelės","сосиски"],["antklodė","ковдра"],["poilsis","відпочинок"],["medis","дерево"]],
+   model:[
+     ["Paveikslėlyje matau šeimą miške.","На малюнку я бачу сім'ю в лісі."],
+     ["Jie ilsisi gamtoje.","Вони відпочивають на природі."],
+     ["Ant antklodės yra maistas ir gėrimai.","На ковдрі їжа і напої."],
+     ["Tėtis kepa dešreles ant laužo.","Тато смажить сосиски на багатті."],
+     ["Vaikai žaidžia tarp medžių.","Діти граються між деревами."],
+     ["Aplink auga aukšti žali medžiai.","Навколо ростуть високі зелені дерева."],
+     ["Oras šiltas ir saulėtas.","Погода тепла і сонячна."],
+     ["Tai tikriausiai vasara.","Це, напевно, літо."],
+     ["Visi mėgaujasi poilsiu lauke.","Усі насолоджуються відпочинком надворі."],
+     ["Man patinka iškylos gamtoje.","Мені подобаються пікніки на природі."]
+   ]}
+];
+
+/* ============ АУДІЮВАННЯ ============ */
+function lDone(i){ return (prog["__L|"+i]||{}).l; }
+function renderListenList(){
+  document.getElementById("lbody").innerHTML=
+    `<p class="small">Прослухай текст (можна двічі, як на іспиті), потім обери правильні відповіді A/B/C.</p>`+
+    LISTENING.map((t,i)=>{
+      const d=lDone(i); const tag=d!=null?`<span class="done-tag">✓ ${d}%</span>`:"";
+      return `<div class="item" onclick="openListen(${i})">
+        <div class="ic">${t.ic}</div>
+        <div><div class="t">${t.title}</div><div class="d">${t.lt} · ${t.q.length} питання</div></div>${tag}</div>`;
+    }).join("");
+}
+let _lstate=null;
+function openListen(i){
+  const t=LISTENING[i]; _lstate={i,answered:0,correct:0,total:t.q.length};
+  document.getElementById("lbody").innerHTML=`
+    <button class="topbar" style="border:none;background:none;color:var(--accent);font-weight:600;padding:6px 0;cursor:pointer" onclick="renderListenList()">‹ Усі тексти</button>
+    <div class="badge">Аудіювання</div>
+    <h3 style="margin:4px 0 0">${t.ic} ${t.title}</h3>
+    <div class="player">
+      <button onclick="listenPlay(${i},1)">▶ Слухати</button>
+      <button class="sec" onclick="listenPlay(${i},2)">🔁 Двічі</button>
+      <button class="sec" onclick="stopSeq()">⏹ Стоп</button>
+    </div>
+    <div class="now-playing" id="nowp"></div>
+    <div id="lq">${t.q.map((q,qi)=>`
+      <div class="qcard" id="lq${qi}">
+        <div class="qt">${qi+1}. ${q[0]}<div class="d" style="font-size:11.5px;color:var(--muted)">${q[1]}</div></div>
+        ${q[2].map((o,oi)=>`<button class="opt" onclick="answerListen(${i},${qi},${oi},${q[3]},this)">${"ABC"[oi]}) ${o}</button>`).join("")}
+      </div>`).join("")}</div>
+    <button class="go ghost" id="ltrans" onclick="revealTranscript(${i})">📄 Показати текст і переклад</button>
+    <div id="ltranscript"></div>`;
+}
+function listenPlay(i,times){
+  const t=LISTENING[i]; const sents=t.text.map(x=>x[0]);
+  const nowp=document.getElementById("nowp");
+  const onStep=(k)=>{ if(!nowp)return; nowp.textContent = k<0 ? "" : "🔊 "+sents[k]; };
+  let round=1;
+  const done=()=>{ if(round<times && !_seqStop){ round++; setTimeout(()=>playSeq(sents,onStep,done), 700); } };
+  playSeq(sents,onStep,done);
+}
+function answerListen(i,qi,oi,correct,btn){
+  const card=document.getElementById("lq"+qi);
+  if(card.dataset.done)return; card.dataset.done="1";
+  const ok=oi===correct;
+  card.querySelectorAll(".opt").forEach((b,bi)=>{b.onclick=null; if(bi===correct)b.classList.add("ok");});
+  if(!ok)btn.classList.add("bad");
+  _lstate.answered++; if(ok)_lstate.correct++;
+  if(_lstate.answered===_lstate.total){
+    const pct=Math.round(_lstate.correct/_lstate.total*100);
+    const prev=lDone(i);
+    if(prev==null||pct>prev){ prog["__L|"+i]={l:pct,s:1}; saveProg(); }
+    const tag=document.createElement("div");
+    tag.className="fb ok"; tag.style.display="block";
+    tag.innerHTML=`Результат: <b>${_lstate.correct} / ${_lstate.total}</b> (${pct}%)`;
+    document.getElementById("lq").appendChild(tag);
+  }
+}
+function revealTranscript(i){
+  const t=LISTENING[i];
+  document.getElementById("ltrans").classList.add("hide");
+  document.getElementById("ltranscript").innerHTML=
+    `<div class="grm"><h3>Tekstas / Текст</h3>`+
+    t.text.map(x=>`<p style="margin:7px 0"><span class="lt" style="font-weight:600">${x[0]}</span>
+       <span style="display:block;color:var(--muted);font-size:12.5px">${x[1]}</span></p>`).join("")+`</div>`;
+}
+
+/* ============ ОПИС КАРТИНОК ============ */
+function pDone(i){ return (prog["__P|"+i]||{}).l; }
+function openPics(){ show("pics"); renderPicList(); }
+function renderPicList(){
+  document.getElementById("picbody").innerHTML=
+    `<p class="small">Подивись на картинку й опиши її 10–15 реченнями (письмово). Дай відповідь на питання-підказки, потім звір зі зразком.</p>`+
+    PICTURES.map((p,i)=>{
+      const tag=pDone(i)?`<span class="done-tag">✓</span>`:"";
+      return `<div class="item" onclick="openPic(${i})">
+        <div class="ic" style="font-size:22px">${p.ic.slice(0,4)}</div>
+        <div><div class="t">${p.lt}</div><div class="d">${p.ua}</div></div>${tag}</div>`;
+    }).join("");
+}
+function openPic(i){
+  const p=PICTURES[i];
+  prog["__P|"+i]={l:1}; saveProg();
+  document.getElementById("picbody").innerHTML=`
+    <button class="topbar" style="border:none;background:none;color:var(--accent);font-weight:600;padding:6px 0;cursor:pointer" onclick="renderPicList()">‹ Усі картинки</button>
+    <div class="scene">${p.ic}<div class="cap">${p.lt} · ${p.ua}</div></div>
+    <div class="badge">Опиши 10–15 реченнями</div>
+    <div class="qcard"><div class="qt" style="font-size:13px;color:var(--muted)">Питання-підказки:</div>
+      ${PIC_Q.map(q=>`<div class="qa"><span class="lt">${q[0]}</span> <span style="color:var(--muted)">— ${q[1]}</span></div>`).join("")}
+    </div>
+    <textarea class="desc" id="picinp" placeholder="Pradėk taip: Paveikslėlyje matau..."></textarea>
+    <div class="pbtns">
+      <button class="ghost" onclick="picReveal(${i})">Показати зразок + словник</button>
+    </div>
+    <div id="picmodel" class="hide"></div>`;
+}
+function picReveal(i){
+  const p=PICTURES[i];
+  const box=document.getElementById("picmodel"); box.classList.remove("hide");
+  box.innerHTML=`
+    <div class="grm"><h3>Naudingi žodžiai / Корисні слова</h3>
+      <div class="vocab">${p.vocab.map(v=>`<span><b>${v[0]}</b> — ${v[1]}</span>`).join("")}</div></div>
+    <div class="grm"><h3>Pavyzdys / Зразок опису
+      <button class="spk" style="float:right" onclick="picSpeak(${i})">🔊</button></h3>
+      <div class="now-playing" id="pnow"></div>
+      <div class="model">${p.model.map(m=>`<p>${m[0]}<span class="u">${m[1]}</span></p>`).join("")}</div></div>`;
+}
+function picSpeak(i){
+  const p=PICTURES[i]; const sents=p.model.map(x=>x[0]);
+  const now=document.getElementById("pnow");
+  playSeq(sents,(k)=>{ if(now)now.textContent = k<0?"":"🔊 "+sents[k]; });
+}
+
 
 loadProg();
 </script>
