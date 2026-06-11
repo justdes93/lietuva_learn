@@ -896,19 +896,40 @@ function bump(th,w,ok){
 }
 function touch(th,w){ const k=key(th,w); const r=prog[k]||{l:0,s:0}; r.s=(r.s||0)+1; prog[k]=r; }
 
-/* ---- audio (lt-LT) ---- */
+/* ---- audio (справжній литовський голос) ----
+   Браузерний SpeechSynthesis майже ніде не має литовського голосу й читає
+   текст чужою фонетикою (звідси «недолуга» вимова). Тому основне джерело —
+   реальне литовське аудіо Google TTS; вбудований двигун лише як запас. */
 let _voices=[];
 function loadVoices(){ try{_voices=speechSynthesis.getVoices()||[];}catch(e){_voices=[];} }
-if(typeof speechSynthesis!=="undefined"){ loadVoices(); speechSynthesis.onvoiceschanged=loadVoices; }
-function speak(text){
+if(typeof speechSynthesis!=="undefined"){ loadVoices(); try{speechSynthesis.onvoiceschanged=loadVoices;}catch(e){} }
+function _hasLtVoice(){ return _voices.some(x=>/^lt([-_]|$)/i.test(x.lang)||/lithuan/i.test(x.name)); }
+function _nativeSpeak(text){
   if(typeof speechSynthesis==="undefined")return;
   try{
     speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text); u.lang="lt-LT"; u.rate=.92;
-    const v=_voices.find(x=>/lt(-|_)?/i.test(x.lang))||_voices.find(x=>/lithuan/i.test(x.name));
+    const u=new SpeechSynthesisUtterance(text); u.lang="lt-LT"; u.rate=.9;
+    const v=_voices.find(x=>/^lt([-_]|$)/i.test(x.lang))||_voices.find(x=>/lithuan/i.test(x.name));
     if(v)u.voice=v;
     speechSynthesis.speak(u);
   }catch(e){}
+}
+let _ttsAudio=null;
+function speak(text){
+  if(!text)return;
+  text=String(text).replace(/[_]+/g," ").replace(/\s+/g," ").trim();
+  if(!text)return;
+  try{ if(typeof speechSynthesis!=="undefined") speechSynthesis.cancel(); }catch(e){}
+  const url="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=lt&total=1&idx=0&textlen="
+    +text.length+"&q="+encodeURIComponent(text);
+  try{
+    if(!_ttsAudio){ _ttsAudio=new Audio(); }
+    _ttsAudio.pause();
+    _ttsAudio.onerror=()=>_nativeSpeak(text);
+    _ttsAudio.src=url;
+    const p=_ttsAudio.play();
+    if(p&&p.catch)p.catch(()=>_nativeSpeak(text));
+  }catch(e){ _nativeSpeak(text); }
 }
 
 /* ============ ПУЛ СЛІВ + ВИБІР БЕЗ ПОВТОРЕНЬ ============ */
