@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
 <title>🇱🇹 Lietuvių · Тренажер A2 · ПМП</title>
 <meta name="description" content="Тренажер литовської мови (A1–A2 / ПМП): 1000+ слів, відмінки, переклад, аудіо, граматика.">
 <style>
@@ -923,8 +924,11 @@ function speak(text){
   const url="https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=lt&total=1&idx=0&textlen="
     +text.length+"&q="+encodeURIComponent(text);
   try{
-    if(!_ttsAudio){ _ttsAudio=new Audio(); }
-    _ttsAudio.pause();
+    if(_ttsAudio){ try{_ttsAudio.pause();}catch(e){} }
+    _ttsAudio=new Audio();
+    // Referer мусить бути порожнім, інакше Google віддає 404 (тиша).
+    // <meta name="referrer" no-referrer> прибирає його; дублюємо й на елементі.
+    try{ _ttsAudio.referrerPolicy="no-referrer"; }catch(e){}
     _ttsAudio.onerror=()=>_nativeSpeak(text);
     _ttsAudio.src=url;
     const p=_ttsAudio.play();
