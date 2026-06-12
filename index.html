@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>🇱🇹 Lietuvių · Тренажер A2 · ПМП</title>
-<meta name="description" content="Тренажер литовської мови (A1–A2 / ПМП): 1000+ слів, відмінки, переклад, аудіо, граматика.">
+<meta name="description" content="Тренажер литовської мови (A1–A2 / ПМП): 1400+ слів, відмінки, переклад, аудіо, граматика.">
 <style>
   :root{
     --bg:#F4F6F3; --card:#FFFFFF; --ink:#1A211C; --muted:#6A7269;
@@ -143,7 +143,7 @@
 <div class="wrap">
   <!-- HOME -->
   <div id="home">
-    <header><h1>🇱🇹 Lietuvių · Тренажер A1–A2 · ПМП</h1><p>1000+ слів · 9 типів вправ · аудіювання · опис картинок · відмінки · граматика. Прогрес зберігається.</p></header>
+    <header><h1>🇱🇹 Lietuvių · Тренажер A1–A2 · ПМП</h1><p>1400+ слів · 9 типів вправ · аудіювання · опис картинок · відмінки · граматика. Прогрес зберігається.</p></header>
     <div class="bar" id="stats"></div>
 
     <h2>1 · Обери тему</h2>
@@ -871,7 +871,219 @@ const THEMES = {
       ["Dirbu ___ pirmadienio iki penktadienio.","nuo","nuo","nuo + Kilmininkas (від... до)"],
       ["Mes kalbame ___ darbą.","apie","apie","apie + Galininkas (про що)"],
       ["___ pietų ilsiuosi.","Po","po","po + Kilmininkas (після чого)"]
-    ]}
+    ]},
+  klausimai:{ic:"❓",name:"Питання / сполучники",desc:"klausimai · jungtukai",
+    words:[
+      ["kas","хто; що"],["kur","де; куди"],["iš kur","звідки"],["kada","коли"],["kodėl","чому"],["kaip","як"],
+      ["kiek","скільки"],["koks","який"],["kokia","яка"],["kuris","котрий"],["kieno","чий"],["ką","кого, що (Acc)"],
+      ["ar","чи"],["ir","і"],["bet","але"],["o","а"],["arba","або"],["nes","бо"],["todėl","тому"],["jei","якщо"],
+      ["kad","щоб; що"],["taip pat","також"],["tačiau","проте"],["kai","коли (сполучник)"],["jog","що"],["dėl to","через це"]
+    ],
+    sent:[
+      ["Kur tu gyveni?","Де ти живеш?"],
+      ["Kada prasideda pamoka?","Коли починається урок?"],
+      ["Kodėl tu vėluoji?","Чому ти спізнюєшся?"],
+      ["Aš noriu valgyti, bet neturiu laiko.","Я хочу їсти, але не маю часу."],
+      ["Einu namo, nes pavargau.","Йду додому, бо втомився."],
+      ["Ar tu kalbi lietuviškai?","Чи ти говориш литовською?"]
+    ],
+    blanks:[
+      ["___ tu gyveni? — Vilniuje.","Kur","kur","питання про місце"],
+      ["___ kainuoja bilietas?","Kiek","kiek","питання про ціну/кількість"],
+      ["Noriu eiti, ___ lyja.","bet","bet","протиставлення"],
+      ["Lieku namie, ___ sergu.","nes","nes","причина (бо)"]
+    ]},
+  prieveiksmiai:{ic:"🕒",name:"Прислівники",desc:"prieveiksmiai",
+    words:[
+      ["dažnai","часто"],["retai","рідко"],["visada","завжди"],["niekada","ніколи"],["kartais","іноді"],["dabar","зараз"],
+      ["anksti","рано"],["vėlai","пізно"],["greitai","швидко"],["lėtai","повільно"],["čia","тут"],["ten","там"],
+      ["arti","близько"],["toli","далеко"],["labai","дуже"],["truputį","трохи"],["gerai","добре"],["blogai","погано"],
+      ["kartu","разом"],["atskirai","окремо"],["garsiai","голосно"],["tyliai","тихо"],["atsargiai","обережно"],
+      ["staiga","раптом"],["beveik","майже"],["jau","вже"],["dar","ще"],["vėl","знову"],["tuoj","зараз, скоро"],
+      ["visur","всюди"],["niekur","ніде"],["smarkiai","сильно"]
+    ],
+    sent:[
+      ["Aš dažnai einu į parką.","Я часто ходжу в парк."],
+      ["Jis kalba labai greitai.","Він говорить дуже швидко."],
+      ["Mes visada pusryčiaujame kartu.","Ми завжди снідаємо разом."],
+      ["Prašau kalbėti lėčiau.","Будь ласка, говоріть повільніше."],
+      ["Aš dar nesuprantu visko.","Я ще не все розумію."],
+      ["Čia labai gražu.","Тут дуже гарно."]
+    ],
+    blanks:[
+      ["Aš ___ keliuosi anksti.","visada","visada","прислівник частоти"],
+      ["Kalbėk ___, prašau.","tyliai","tyliai","спосіб дії"],
+      ["Jis ___ neatėjo.","dar","dar","ще не"]
+    ]},
+  valanda:{ic:"⏰",name:"Котра година / час",desc:"kelinta valanda?",
+    words:[
+      ["valanda","година"],["minutė","хвилина"],["sekundė","секунда"],["pusvalandis","півгодини"],["kelinta valanda?","котра година?"],
+      ["pusė","пів"],["ketvirtis","чверть"],["lygiai","рівно"],["po","по (після)"],["be","без"],["vidurdienis","полудень"],
+      ["vidurnaktis","північ"],["rytas","ранок"],["diena","день"],["vakaras","вечір"],["naktis","ніч"],["priešpiet","до полудня"],
+      ["popiet","після полудня"],["dabar","зараз"],["pradžia","початок"],["pabaiga","кінець"],["laikas","час"],
+      ["anksti","рано"],["vėlai","пізно"]
+    ],
+    sent:[
+      ["Kelinta valanda? — Dešimta.","Котра година? — Десята."],
+      ["Dabar pusė aštuonių.","Зараз пів на восьму."],
+      ["Pamoka prasideda devintą valandą.","Урок починається о дев'ятій."],
+      ["Susitinkame be penkių dvylika.","Зустрічаємось за п'ять хвилин дванадцята."],
+      ["Aš keliuosi septintą ryto.","Я встаю о сьомій ранку."],
+      ["Vakarienė lygiai šeštą.","Вечеря рівно о шостій."]
+    ],
+    blanks:[
+      ["Dabar ___ devynių (8:30).","pusė","pusė","пів на дев'яту"],
+      ["Pamoka prasideda devintą ___.","valandą","valanda","Galininkas — о котрій"],
+      ["Susitinkame ___ penkių dvylika (11:55).","be","be","без п'яти"]
+    ]},
+  isvaizda:{ic:"🧑",name:"Зовнішність / опис людини",desc:"išvaizda",
+    words:[
+      ["išvaizda","зовнішність"],["aukštas","високий"],["žemas","низький"],["lieknas","стрункий"],["storas","товстий"],
+      ["plaukai","волосся"],["trumpi plaukai","коротке волосся"],["ilgi plaukai","довге волосся"],["šviesūs","світле"],
+      ["tamsūs","темне"],["akys","очі"],["mėlynos akys","блакитні очі"],["rudos akys","карі очі"],["barzda","борода"],
+      ["ūsai","вуса"],["akiniai","окуляри"],["jaunas","молодий"],["senas","старий"],["gražus","гарний"],["veidas","обличчя"],
+      ["šypsena","усмішка"],["plikas","лисий"],["garbanoti","кучеряве"],["panašus","схожий"],["vyras","чоловік"],
+      ["moteris","жінка"],["vaikas","дитина"],["žmogus","людина"],["draugiškas","привітний"],["malonus","приємний"]
+    ],
+    sent:[
+      ["Jis aukštas ir lieknas.","Він високий і стрункий."],
+      ["Ji turi ilgus šviesius plaukus.","У неї довге світле волосся."],
+      ["Vyras su barzda ir akiniais.","Чоловік з бородою та в окулярах."],
+      ["Mergaitė turi mėlynas akis.","У дівчинки блакитні очі."],
+      ["Jis labai panašus į tėtį.","Він дуже схожий на тата."]
+    ],
+    blanks:[
+      ["Ji turi ilgus ___.","plaukus","plaukai","Galininkas (Acc, мн.)"],
+      ["Vyras ___ barzda.","su","su","su + Įnagininkas (з чим)"],
+      ["Jis panašus ___ tėtį.","į","į","panašus į + Galininkas"]
+    ]},
+  technologijos:{ic:"📱",name:"Телефон / інтернет",desc:"technologijos",
+    words:[
+      ["telefonas","телефон"],["išmanusis telefonas","смартфон"],["kompiuteris","комп'ютер"],["internetas","інтернет"],
+      ["ekranas","екран"],["klaviatūra","клавіатура"],["programa","застосунок, програма"],["žinutė","повідомлення"],
+      ["el. paštas","електронна пошта"],["paskambinti","зателефонувати"],["parašyti žinutę","написати повідомлення"],
+      ["atsisiųsti","завантажити"],["įkrauti","зарядити"],["baterija","батарея"],["slaptažodis","пароль"],
+      ["naršyti","шукати в інтернеті"],["nuotrauka","фото"],["vaizdo skambutis","відеодзвінок"],["tinklas","мережа"],
+      ["wifi","вай-фай"],["mygtukas","кнопка"],["įjungti","увімкнути"],["išjungti","вимкнути"],["spausti","натискати"],
+      ["failas","файл"],["paskyra","акаунт"],["prisijungti","увійти"],["išsikrauti","розрядитися"]
+    ],
+    sent:[
+      ["Aš parašysiu tau žinutę.","Я напишу тобі повідомлення."],
+      ["Telefonas išsikrovė.","Телефон розрядився."],
+      ["Reikia įkrauti telefoną.","Треба зарядити телефон."],
+      ["Aš ieškau informacijos internete.","Я шукаю інформацію в інтернеті."],
+      ["Ar yra wifi?","Чи є вай-фай?"]
+    ],
+    blanks:[
+      ["Reikia ___ telefoną.","įkrauti","įkrauti","зарядити (інфінітив)"],
+      ["Ieškau internete ___.","informacijos","informacija","Kilmininkas"],
+      ["Aš ___ tau žinutę.","parašysiu","parašyti","майбутній — aš parašysiu"]
+    ]},
+  bankas:{ic:"💶",name:"Гроші / банк",desc:"bankas · pinigai",
+    words:[
+      ["bankas","банк"],["pinigai","гроші"],["sąskaita","рахунок"],["banko kortelė","банківська картка"],["grynieji","готівка"],
+      ["bankomatas","банкомат"],["pavedimas","переказ"],["mokėjimas","платіж"],["paskola","кредит"],["taupyti","заощаджувати"],
+      ["išleisti","витрачати"],["uždirbti","заробляти"],["kaina","ціна"],["nuolaida","знижка"],["atlyginimas","зарплата"],
+      ["mokestis","податок, плата"],["išlaidos","витрати"],["pajamos","дохід"],["valiuta","валюта"],["euras","євро"],
+      ["centas","цент"],["pervesti","переказати"],["išgryninti","зняти готівку"],["sumokėti","заплатити"],["skola","борг"],
+      ["sąskaitos numeris","номер рахунку"]
+    ],
+    sent:[
+      ["Noriu atidaryti banko sąskaitą.","Хочу відкрити банківський рахунок."],
+      ["Ar galiu mokėti kortele?","Чи можу платити карткою?"],
+      ["Reikia išgryninti pinigų.","Треба зняти готівку."],
+      ["Aš taupau atostogoms.","Я заощаджую на відпустку."],
+      ["Kiek kainuoja pavedimas?","Скільки коштує переказ?"]
+    ],
+    blanks:[
+      ["Noriu atidaryti banko ___.","sąskaitą","sąskaita","Galininkas (Acc)"],
+      ["Ar galiu mokėti ___?","kortele","kortelė","Įnagininkas (чим)"],
+      ["Aš taupau ___.","atostogoms","atostogos","Naudininkas (для чого)"]
+    ]},
+  salys:{ic:"🌍",name:"Країни / мови",desc:"šalys · kalbos",
+    words:[
+      ["šalis","країна"],["valstybė","держава"],["sostinė","столиця"],["siena","кордон"],["užsienis","закордон"],
+      ["Lietuva","Литва"],["Ukraina","Україна"],["Lenkija","Польща"],["Latvija","Латвія"],["Vokietija","Німеччина"],
+      ["Europa","Європа"],["lietuvis","литовець"],["ukrainietis","українець"],["lenkas","поляк"],["tautybė","національність"],
+      ["kalba","мова"],["lietuviškai","литовською"],["ukrainietiškai","українською"],["angliškai","англійською"],
+      ["rusiškai","російською"],["gimtoji kalba","рідна мова"],["pilietybė","громадянство"],["pilietis","громадянин"],
+      ["užsienietis","іноземець"],["Vilnius","Вільнюс"],["Kaunas","Каунас"],["žemėlapis","карта"],["vietovė","місцевість"]
+    ],
+    sent:[
+      ["Aš esu iš Ukrainos.","Я з України."],
+      ["Gyvenu Lietuvoje, Vilniuje.","Живу в Литві, у Вільнюсі."],
+      ["Mano gimtoji kalba – ukrainiečių.","Моя рідна мова — українська."],
+      ["Aš mokausi lietuvių kalbos.","Я вивчаю литовську мову."],
+      ["Lietuvos sostinė yra Vilnius.","Столиця Литви — Вільнюс."]
+    ],
+    blanks:[
+      ["Aš esu ___ Ukrainos.","iš","iš","iš + Kilmininkas (звідки)"],
+      ["Gyvenu ___.","Lietuvoje","Lietuva","Vietininkas (де)"],
+      ["Aš kalbu ___.","lietuviškai","lietuviškai","прислівник мови"]
+    ]},
+  kelione:{ic:"🧳",name:"Подорож / відпочинок",desc:"kelionė · atostogos",
+    words:[
+      ["kelionė","подорож"],["atostogos","відпустка"],["viešbutis","готель"],["rezervacija","бронювання"],["bagažas","багаж"],
+      ["lagaminas","валіза"],["pasas","паспорт"],["viza","віза"],["bilietas","квиток"],["ekskursija","екскурсія"],
+      ["žemėlapis","карта"],["gidas","гід"],["paplūdimys","пляж"],["kalnai","гори"],["jūra","море"],["fotoaparatas","фотоапарат"],
+      ["kambarys","номер (кімната)"],["registratūra","рецепція"],["raktas","ключ"],["išvykti","виїжджати"],["grįžti","повертатися"],
+      ["keliauti","подорожувати"],["aplankyti","відвідати"],["poilsis","відпочинок"],["suvenyras","сувенір"],["maršrutas","маршрут"],
+      ["nakvynė","ночівля"],["palapinė","намет"],["oro uostas","аеропорт"],["kelionės draudimas","страхування подорожі"]
+    ],
+    sent:[
+      ["Vasarą važiuosiu prie jūros.","Влітку поїду до моря."],
+      ["Užsisakiau viešbutį internete.","Я забронював готель в інтернеті."],
+      ["Mes keliaujame su visa šeima.","Ми подорожуємо всією сім'єю."],
+      ["Pamiršau pasą namuose.","Я забув паспорт удома."],
+      ["Norėčiau aplankyti Vilnių.","Я хотів би відвідати Вільнюс."]
+    ],
+    blanks:[
+      ["Vasarą važiuoju prie ___.","jūros","jūra","prie + Kilmininkas"],
+      ["Užsisakiau ___ internete.","viešbutį","viešbutis","Galininkas (Acc)"],
+      ["Keliauju su ___ šeima.","visa","visa","Įnagininkas (з ким)"]
+    ]},
+  kasdienybe:{ic:"🔁",name:"Щоденна рутина",desc:"kasdienybė",
+    words:[
+      ["keltis","вставати"],["praustis","вмиватися"],["valytis dantis","чистити зуби"],["rengtis","одягатися"],
+      ["pusryčiauti","снідати"],["pietauti","обідати"],["vakarieniauti","вечеряти"],["eiti į darbą","йти на роботу"],
+      ["grįžti namo","повертатися додому"],["gultis","лягати спати"],["miegoti","спати"],["pailsėti","відпочити"],
+      ["gaminti","готувати"],["tvarkytis","прибиратися"],["skalbti","прати"],["apsipirkti","робити покупки"],
+      ["pasivaikščioti","прогулятися"],["skaityti","читати"],["žiūrėti televizorių","дивитися телевізор"],
+      ["nusiprausti duše","прийняти душ"],["susiruošti","зібратися"],["skubėti","поспішати"],["dirbti","працювати"],
+      ["mokytis","вчитися"],["sportuoti","займатися спортом"],["ruoštis","готуватися"],["budėti","чергувати"],["ilsėtis","відпочивати"]
+    ],
+    sent:[
+      ["Aš keliuosi septintą valandą.","Я встаю о сьомій годині."],
+      ["Po darbo gaminu vakarienę.","Після роботи готую вечерю."],
+      ["Vakare žiūriu televizorių ir ilsiuosi.","Увечері дивлюся телевізор і відпочиваю."],
+      ["Ryte skubu į darbą.","Зранку поспішаю на роботу."],
+      ["Savaitgalį tvarkausi namuose.","На вихідних прибираю вдома."]
+    ],
+    blanks:[
+      ["Aš ___ septintą valandą.","keliuosi","keltis","aš keliuosi"],
+      ["Po darbo ___ vakarienę.","gaminu","gaminti","aš gaminu"],
+      ["Ryte ___ į darbą.","skubu","skubėti","aš skubu"]
+    ]},
+  gyvunai:{ic:"🐾",name:"Тварини",desc:"gyvūnai",
+    words:[
+      ["gyvūnas","тварина"],["naminis gyvūnas","домашня тварина"],["šuo","собака"],["katė","кіт"],["arklys","кінь"],
+      ["karvė","корова"],["kiaulė","свиня"],["avis","вівця"],["ožka","коза"],["višta","курка"],["gaidys","півень"],
+      ["antis","качка"],["žąsis","гуска"],["triušis","кролик"],["pelė","миша"],["paukštis","птах"],["žuvis","риба"],
+      ["varlė","жаба"],["gyvatė","змія"],["voras","павук"],["bitė","бджола"],["drugelis","метелик"],["meška","ведмідь"],
+      ["vilkas","вовк"],["lapė","лисиця"],["kiškis","заєць"],["briedis","лось"],["ežys","їжак"],["voverė","білка"],["uodega","хвіст"]
+    ],
+    sent:[
+      ["Aš turiu šunį ir katę.","У мене є собака і кіт."],
+      ["Kaime gyvena karvės ir vištos.","У селі живуть корови і кури."],
+      ["Miške galima pamatyti lapę.","У лісі можна побачити лисицю."],
+      ["Vaikai mėgsta gyvūnus.","Діти люблять тварин."],
+      ["Mūsų šuo labai draugiškas.","Наш собака дуже привітний."]
+    ],
+    blanks:[
+      ["Aš turiu ___ ir katę.","šunį","šuo","Galininkas (Acc)"],
+      ["Vaikai mėgsta ___.","gyvūnus","gyvūnai","Galininkas (Acc, мн.)"],
+      ["Miške gyvena ___.","lapė","lapė","Vardininkas (хто живе)"]
+    ]},
 };
 
 const GRAMMAR = `
